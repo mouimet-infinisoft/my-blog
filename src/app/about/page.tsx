@@ -77,10 +77,10 @@ export default function About() {
           </h1>
           <div className="mt-6 space-y-7 text-base text-zinc-600 dark:text-zinc-400">
             <p>
-            Since childhood, I've been captivated by the art of thinking, learning, and creating. My journey into software engineering began at the age of 12, igniting a passion that has driven me for over 27 years. Technology has always been more than just a tool for me—it’s a way to push the boundaries of what's possible.
+            Since childhood, I’ve been captivated by the art of thinking, learning, and creating. My journey into software engineering began at the age of 12, igniting a passion that has driven me for over 27 years. Technology has always been more than just a tool for me—it’s a way to push the boundaries of what’s possible.
             </p>
             <p>
-            Throughout my career, I've embraced innovation, founding and developing solutions that bridge the gap between artificial intelligence, automation, and human collaboration. From system architecture to cognitive computing, I thrive in crafting technologies that enhance decision-making and problem-solving.
+            Throughout my career, I’ve embraced innovation, founding and developing solutions that bridge the gap between artificial intelligence, automation, and human collaboration. From system architecture to cognitive computing, I thrive in crafting technologies that enhance decision-making and problem-solving.
             </p>
             <p>
             Today, my focus is on building scalable, AI-powered platforms that drive efficiency, intelligence, and seamless digital transformation. Whether designing software, leading development teams, or conceptualizing the future of AI-driven solutions, my goal remains the same: to create, inspire, and innovate.
