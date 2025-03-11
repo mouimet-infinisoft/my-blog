@@ -276,7 +276,7 @@ export default async function Home() {
             Technology leader, innovator, and AI solutions architect.
           </h1>
           <p className="mt-6 text-base text-zinc-600 dark:text-zinc-400">
-            I'm Martin Ouimet, an innovative technology leader with 20+ years of experience transforming businesses through AI and cloud solutions. As the founder and CEO of Infinisoft World, I've built a 25-person company delivering enterprise-grade software across finance, healthcare, retail, and transportation sectors.
+            I&apos;m Martin Ouimet, an innovative technology leader with 20+ years of experience transforming businesses through AI and cloud solutions. As the founder and CEO of Infinisoft World, I&apos;ve built a 25-person company delivering enterprise-grade software across finance, healthcare, retail, and transportation sectors.
           </p>
           <div className="mt-6 flex gap-6">
             <SocialLink target='_blank' href="https://x.com/InfinisoftI" aria-label="Follow on X" icon={XIcon} />
