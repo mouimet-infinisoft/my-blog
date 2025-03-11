@@ -1,0 +1,103 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Martin Ouimet',
+  date: '2024-03-11',
+  title: 'Advanced Usage of @brainstack/inject: Custom Scopes and Hierarchical DI',
+  description: 'Explore advanced usage of @brainstack/inject, including custom scopes and hierarchical dependency injection.',
+  series: {
+    name: '@brainstack/inject Series',
+    order: 2
+  },
+  tags: ['dependency-injection', 'brainstack', 'inject', 'typescript', 'advanced'],
+  category: 'Advanced'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Advanced Usage of @brainstack/inject: Custom Scopes and Hierarchical DI
+
+In this article, we will explore advanced usage of `@brainstack/inject`, including custom scopes and hierarchical dependency injection (DI).
+
+## Custom Scopes
+
+Custom scopes allow you to define specific lifetimes for your services beyond the standard singleton and transient scopes.
+
+### Example: Request Scope
+
+A common use case for custom scopes is a request scope, where a new instance of a service is created for each HTTP request.
+
+```typescript
+import { Container } from '@brainstack/inject';
+
+class RequestScopeContainer extends Container {
+  private requestScope: Map<string, any> = new Map();
+
+  registerRequestScoped<T>(id: string, factory: () => T) {
+    this.requestScope.set(id, factory);
+  }
+
+  getRequestScoped<T>(id: string): T {
+    const factory = this.requestScope.get(id);
+    if (!factory) {
+      throw new Error(`No request-scoped service registered with ID '${id}'`);
+    }
+    return factory();
+  }
+
+  clearRequestScope() {
+    this.requestScope.clear();
+  }
+}
+
+// Usage
+const requestContainer = new RequestScopeContainer();
+requestContainer.registerRequestScoped('requestService', () => new RequestService());
+
+const requestServiceInstance = requestContainer.getRequestScoped('requestService');
+```
+
+## Hierarchical DI
+
+Hierarchical DI allows you to create parent-child container relationships, enabling dependency management across different parts of your application.
+
+### Example: Parent-Child Containers
+
+You can create a parent container that provides common services and a child container that provides specific services for a module.
+
+```typescript
+import { Container, Service, Inject } from '@brainstack/inject';
+
+const parentContainer = new Container();
+const childContainer = new Container();
+
+@Service(parentContainer)
+class AuthService {
+  authenticate() {
+    return 'Authenticated';
+  }
+}
+
+@Service(childContainer)
+class UserService {
+  constructor(@Inject private authService: AuthService) {}
+
+  getUser() {
+    return `User: ${this.authService.authenticate()}`;
+  }
+}
+
+const userServiceInstance = childContainer.getInstance(UserService);
+console.log(userServiceInstance.getUser()); // Output: User: Authenticated
+```
+
+## Conclusion
+
+By leveraging custom scopes and hierarchical DI, you can create more flexible and modular applications with `@brainstack/inject`. These advanced features allow you to manage dependencies more effectively and tailor the DI behavior to your specific needs. In the next article, we will explore testing with `@brainstack/inject`, including mocking and swapping dependencies.
+
+Stay tuned for more!

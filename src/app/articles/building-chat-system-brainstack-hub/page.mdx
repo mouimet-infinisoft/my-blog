@@ -1,0 +1,450 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Martin Ouimet',
+  date: '2024-01-18',
+  title: 'Real-World Applications: Building a Chat System with @brainstack/hub',
+  description: 'Learn how to build a scalable real-time chat system using @brainstack/hub and WebSocket integration.',
+  series: {
+    name: '@brainstack/hub Series',
+    order: 4
+  },
+  tags: ['chat', 'websocket', 'real-time', 'brainstack', 'hub', 'typescript'],
+  category: 'Real-World Examples'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Real-World Applications: Building a Chat System with @brainstack/hub
+
+In this article, we'll build a real-time chat system using @brainstack/hub and WebSocket integration. This practical example will demonstrate how to handle real-time events, manage user sessions, and implement room-based chat functionality.
+
+## System Architecture
+
+Our chat system will consist of three main components:
+- Chat Server (using @brainstack/hub and WebSocket)
+- Chat Client Library
+- User Session Management
+
+## 1. Chat Server Implementation
+
+First, let's create the chat server using @brainstack/hub and @brainstack/bridge-server:
+
+```typescript
+import { createEventHub } from '@brainstack/hub';
+import { createBridgeServer } from '@brainstack/bridge-server';
+import { createLogger } from '@brainstack/log';
+
+interface ChatMessage {
+  id: string;
+  roomId: string;
+  userId: string;
+  content: string;
+  timestamp: number;
+}
+
+interface ChatRoom {
+  id: string;
+  name: string;
+  users: Set<string>;
+}
+
+class ChatServer {
+  private hub = createEventHub();
+  private logger = createLogger();
+  private rooms = new Map<string, ChatRoom>();
+  private userSessions = new Map<string, string[]>(); // userId -> roomIds
+
+  constructor() {
+    // Initialize the bridge server
+    const bridgeServer = createBridgeServer({
+      hub: this.hub,
+      logger: this.logger
+    });
+
+    // Start listening
+    bridgeServer.listen({ port: 3000 });
+
+    this.setupEventHandlers();
+  }
+
+  private setupEventHandlers() {
+    // Handle user joining a room
+    this.hub.on('chat.join', ({ userId, roomId }) => {
+      this.joinRoom(userId, roomId);
+    });
+
+    // Handle user leaving a room
+    this.hub.on('chat.leave', ({ userId, roomId }) => {
+      this.leaveRoom(userId, roomId);
+    });
+
+    // Handle new messages
+    this.hub.on('chat.message', (message: ChatMessage) => {
+      this.handleMessage(message);
+    });
+  }
+
+  private joinRoom(userId: string, roomId: string) {
+    let room = this.rooms.get(roomId);
+    
+    if (!room) {
+      room = {
+        id: roomId,
+        name: `Room ${roomId}`,
+        users: new Set()
+      };
+      this.rooms.set(roomId, room);
+    }
+
+    room.users.add(userId);
+    
+    // Add room to user's sessions
+    const userRooms = this.userSessions.get(userId) || [];
+    userRooms.push(roomId);
+    this.userSessions.set(userId, userRooms);
+
+    // Notify room members
+    this.hub.emit(`chat.room.${roomId}.joined`, {
+      userId,
+      timestamp: Date.now()
+    });
+  }
+
+  private leaveRoom(userId: string, roomId: string) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+
+    room.users.delete(userId);
+    
+    // Remove room from user's sessions
+    const userRooms = this.userSessions.get(userId) || [];
+    this.userSessions.set(
+      userId,
+      userRooms.filter(id => id !== roomId)
+    );
+
+    // Notify room members
+    this.hub.emit(`chat.room.${roomId}.left`, {
+      userId,
+      timestamp: Date.now()
+    });
+
+    // Clean up empty rooms
+    if (room.users.size === 0) {
+      this.rooms.delete(roomId);
+    }
+  }
+
+  private handleMessage(message: ChatMessage) {
+    const room = this.rooms.get(message.roomId);
+    if (!room) return;
+
+    // Validate user is in the room
+    if (!room.users.has(message.userId)) {
+      this.logger.warn('User not in room', {
+        userId: message.userId,
+        roomId: message.roomId
+      });
+      return;
+    }
+
+    // Broadcast message to room members
+    this.hub.emit(`chat.room.${message.roomId}.message`, message);
+  }
+}
+```
+
+## 2. Chat Client Library
+
+Now let's create a client library that applications can use to interact with our chat system:
+
+```typescript
+import { createEventHub } from '@brainstack/hub';
+import { createBridgeClient } from '@brainstack/bridge-client';
+
+export class ChatClient {
+  private hub = createEventHub();
+  private bridge: any;
+  private userId: string;
+  private activeRooms = new Set<string>();
+
+  constructor(userId: string, serverUrl: string) {
+    this.userId = userId;
+    this.bridge = createBridgeClient({
+      url: serverUrl,
+      hub: this.hub
+    });
+  }
+
+  async connect() {
+    await this.bridge.connect();
+  }
+
+  async joinRoom(roomId: string) {
+    this.hub.emit('chat.join', {
+      userId: this.userId,
+      roomId
+    });
+
+    this.activeRooms.add(roomId);
+
+    // Listen for room messages
+    this.hub.on(`chat.room.${roomId}.message`, (message) => {
+      this.onMessage?.(message);
+    });
+  }
+
+  async leaveRoom(roomId: string) {
+    this.hub.emit('chat.leave', {
+      userId: this.userId,
+      roomId
+    });
+
+    this.activeRooms.delete(roomId);
+  }
+
+  sendMessage(roomId: string, content: string) {
+    if (!this.activeRooms.has(roomId)) {
+      throw new Error('Not joined to room');
+    }
+
+    const message = {
+      id: crypto.randomUUID(),
+      roomId,
+      userId: this.userId,
+      content,
+      timestamp: Date.now()
+    };
+
+    this.hub.emit('chat.message', message);
+  }
+
+  // Event handlers that can be set by the application
+  onMessage?: (message: any) => void;
+  onUserJoined?: (event: any) => void;
+  onUserLeft?: (event: any) => void;
+}
+```
+
+## 3. Using the Chat System
+
+Here's how to use our chat system in a React application:
+
+```typescript
+import { useState, useEffect } from 'react';
+import { ChatClient } from './ChatClient';
+
+function ChatRoom({ roomId, userId }) {
+  const [messages, setMessages] = useState([]);
+  const [client, setClient] = useState(null);
+
+  useEffect(() => {
+    // Initialize chat client
+    const chatClient = new ChatClient(
+      userId,
+      'ws://localhost:3000'
+    );
+
+    chatClient.onMessage = (message) => {
+      setMessages(prev => [...prev, message]);
+    };
+
+    chatClient.connect().then(() => {
+      chatClient.joinRoom(roomId);
+    });
+
+    setClient(chatClient);
+
+    return () => {
+      if (client) {
+        client.leaveRoom(roomId);
+      }
+    };
+  }, [roomId, userId]);
+
+  const sendMessage = (content) => {
+    if (client) {
+      client.sendMessage(roomId, content);
+    }
+  };
+
+  return (
+    <div className="chat-room">
+      <div className="messages">
+        {messages.map(message => (
+          <div key={message.id} className="message">
+            <span className="user">{message.userId}:</span>
+            <span className="content">{message.content}</span>
+          </div>
+        ))}
+      </div>
+      <MessageInput onSend={sendMessage} />
+    </div>
+  );
+}
+```
+
+## Advanced Features
+
+### 1. Message Persistence
+
+Add message persistence using @brainstack/store:
+
+```typescript
+import { createStore } from '@brainstack/store';
+
+class MessageStore {
+  private store = createStore();
+  private hub = createEventHub();
+
+  constructor() {
+    // Subscribe to new messages
+    this.hub.on('chat.message', (message) => {
+      this.store.mutate((state) => {
+        const roomMessages = state[message.roomId] || [];
+        return {
+          ...state,
+          [message.roomId]: [...roomMessages, message]
+        };
+      });
+    });
+  }
+
+  getRoomMessages(roomId: string) {
+    return this.store.getState()[roomId] || [];
+  }
+}
+```
+
+### 2. Typing Indicators
+
+Implement real-time typing indicators:
+
+```typescript
+class TypingTracker {
+  private hub = createEventHub();
+  private typingUsers = new Map<string, Set<string>>();
+
+  constructor() {
+    this.hub.on('chat.typing.start', ({ userId, roomId }) => {
+      this.setTyping(roomId, userId);
+    });
+
+    this.hub.on('chat.typing.stop', ({ userId, roomId }) => {
+      this.clearTyping(roomId, userId);
+    });
+  }
+
+  private setTyping(roomId: string, userId: string) {
+    let users = this.typingUsers.get(roomId);
+    if (!users) {
+      users = new Set();
+      this.typingUsers.set(roomId, users);
+    }
+
+    users.add(userId);
+    this.emitTypingUpdate(roomId);
+  }
+
+  private clearTyping(roomId: string, userId: string) {
+    const users = this.typingUsers.get(roomId);
+    if (users) {
+      users.delete(userId);
+      this.emitTypingUpdate(roomId);
+    }
+  }
+
+  private emitTypingUpdate(roomId: string) {
+    const users = Array.from(this.typingUsers.get(roomId) || []);
+    this.hub.emit(`chat.room.${roomId}.typing`, { users });
+  }
+}
+```
+
+## Performance Considerations
+
+1. **Message Batching**
+   - Batch messages for bulk processing
+   - Implement rate limiting for message sending
+   - Use message compression for large payloads
+
+2. **Connection Management**
+   - Implement reconnection logic
+   - Handle connection timeouts
+   - Add heartbeat mechanism
+
+3. **Scaling**
+   - Use room sharding for large numbers of rooms
+   - Implement message queue for persistence
+   - Add load balancing support
+
+## Security Considerations
+
+1. **Authentication**
+   - Implement user authentication using @brainstack/auth
+   - Verify user permissions for room access
+   - Add message signing for security
+
+2. **Input Validation**
+   - Validate message content
+   - Implement rate limiting per user
+   - Add spam detection
+
+## Testing
+
+Here's how to test the chat system:
+
+```typescript
+import { createEventHub } from '@brainstack/hub';
+
+describe('ChatServer', () => {
+  let chatServer;
+  let testHub;
+
+  beforeEach(() => {
+    testHub = createEventHub();
+    chatServer = new ChatServer(testHub);
+  });
+
+  test('user can join room', async () => {
+    const userId = 'user1';
+    const roomId = 'room1';
+
+    await chatServer.joinRoom(userId, roomId);
+    const room = chatServer.getRoomInfo(roomId);
+
+    expect(room.users.has(userId)).toBe(true);
+  });
+
+  test('messages are delivered to room members', (done) => {
+    const userId = 'user1';
+    const roomId = 'room1';
+    const content = 'Hello, world!';
+
+    testHub.on(`chat.room.${roomId}.message`, (message) => {
+      expect(message.content).toBe(content);
+      expect(message.userId).toBe(userId);
+      done();
+    });
+
+    chatServer.joinRoom(userId, roomId);
+    chatServer.handleMessage({
+      id: '1',
+      roomId,
+      userId,
+      content,
+      timestamp: Date.now()
+    });
+  });
+});
+```
+
+## Conclusion
+
+This implementation demonstrates how @brainstack/hub can be used to build a robust, real-time chat system. The event-driven architecture makes it easy to add features and scale the system as needed. In the next article, we'll explore how to integrate @brainstack/hub with state management for more complex applications.

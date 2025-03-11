@@ -2,17 +2,23 @@ import { type Metadata } from 'next'
 
 import { Providers } from '@/app/providers'
 import { Layout } from '@/components/Layout'
-
+import '@fontsource/inter/400.css'
+import '@fontsource/inter/500.css'
+import '@fontsource/inter/600.css'
+import '@fontsource/inter/700.css'
+import '@fontsource/lexend/400.css'
+import '@fontsource/lexend/500.css'
+import '@fontsource/lexend/600.css'
+import '@fontsource/lexend/700.css'
 import '@/styles/tailwind.css'
 
 export const metadata: Metadata = {
   title: {
     template: '%s - Martin Ouimet',
-    default:
-      'Software engineer, founder, and knowledge lover.',
+    default: 'Martin Ouimet - Technology Leader & AI Solutions Architect',
   },
   description:
-    'I’m Martin, since my early life, I discovered a deep passion to think, learn, understand and create. At the age of 12, I discovered software programming. That lit a fire inside of me, which is still burning after 27 years. That passion acted as a magnet across time and makes it possible to accomplish awesome acheivements.',
+    'Innovative technology leader with 20+ years of experience transforming businesses through AI and cloud solutions. Founder and CEO of Infinisoft World, delivering enterprise-grade software across multiple sectors.',
   alternates: {
     types: {
       'application/rss+xml': `${process.env.NEXT_PUBLIC_SITE_URL}/feed.xml`,

@@ -1,0 +1,256 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Martin Ouimet',
+  date: '2024-01-16',
+  title: 'Getting Started with @brainstack/hub',
+  description: 'A comprehensive tutorial on getting started with event-driven development using @brainstack/hub, including installation, basic concepts, and your first event system.',
+  series: {
+    name: '@brainstack/hub Series',
+    order: 1
+  },
+  tags: ['tutorial', 'getting-started', 'brainstack', 'hub', 'typescript', 'events'],
+  category: 'Tutorials'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Getting Started with @brainstack/hub
+
+Event-driven architecture is a powerful paradigm for building scalable and maintainable applications. In this tutorial, we'll get started with @brainstack/hub, a lightweight yet powerful event management system for JavaScript and TypeScript applications.
+
+## Prerequisites
+
+Before we begin, make sure you have:
+- Node.js (v16 or later)
+- npm or pnpm
+- TypeScript (recommended)
+
+## Installation
+
+First, let's create a new project and install @brainstack/hub:
+
+```bash
+mkdir event-demo
+cd event-demo
+npm init -y
+npm install @brainstack/hub @brainstack/log typescript
+```
+
+## Basic Setup
+
+Create a new TypeScript file `src/index.ts`:
+
+```typescript
+import { createEventHub } from '@brainstack/hub';
+import { createLogger } from '@brainstack/log';
+
+// Create an event hub instance
+const hub = createEventHub({
+  source: 'tutorial',
+  logger: createLogger()
+});
+
+// Your first event handler
+hub.on('greeting', (message) => {
+  console.log('Received greeting:', message);
+});
+
+// Emit your first event
+hub.emit('greeting', 'Hello, @brainstack/hub!');
+```
+
+## Understanding Events
+
+Events in @brainstack/hub have three key components:
+1. Event Type - A string identifier for the event
+2. Event Data - The payload carried by the event
+3. Event Headers - Metadata about the event (automatically handled)
+
+Let's explore these concepts:
+
+```typescript
+// Event with structured data
+interface UserEvent {
+  id: string;
+  name: string;
+  email: string;
+}
+
+// Type-safe event handler
+hub.on('user.created', (user: UserEvent) => {
+  console.log('New user created:', user.name);
+});
+
+// Emit event with typed data
+hub.emit('user.created', {
+  id: '123',
+  name: 'John Doe',
+  email: 'john@example.com'
+});
+```
+
+## Event Patterns
+
+@brainstack/hub supports powerful event pattern matching:
+
+```typescript
+// Listen to all user events
+hub.on('user.*', (event) => {
+  console.log('User event:', event.type);
+});
+
+// Use regex patterns
+hub.on(/notification\.(success|error)/, (event) => {
+  console.log('Notification:', event.type);
+});
+
+// Multiple handlers for the same event
+hub.on('data.updated', (data) => {
+  console.log('Handler 1:', data);
+});
+
+hub.on('data.updated', (data) => {
+  console.log('Handler 2:', data);
+});
+```
+
+## Building a Simple Chat System
+
+Let's build a simple chat system to demonstrate real-world usage:
+
+```typescript
+interface Message {
+  id: string;
+  sender: string;
+  content: string;
+  timestamp: number;
+}
+
+class ChatRoom {
+  private hub = createEventHub();
+  private messages: Message[] = [];
+
+  constructor(private roomId: string) {
+    // Listen for new messages
+    this.hub.on(`chat.${roomId}.message`, this.handleMessage);
+    
+    // Listen for user presence
+    this.hub.on(`chat.${roomId}.join`, this.handleUserJoin);
+    this.hub.on(`chat.${roomId}.leave`, this.handleUserLeave);
+  }
+
+  private handleMessage = (message: Message) => {
+    this.messages.push(message);
+    console.log(`${message.sender}: ${message.content}`);
+  }
+
+  private handleUserJoin = (user: string) => {
+    console.log(`${user} joined the room`);
+    this.hub.emit(`chat.${this.roomId}.system`, {
+      content: `${user} joined the room`,
+      timestamp: Date.now()
+    });
+  }
+
+  private handleUserLeave = (user: string) => {
+    console.log(`${user} left the room`);
+    this.hub.emit(`chat.${this.roomId}.system`, {
+      content: `${user} left the room`,
+      timestamp: Date.now()
+    });
+  }
+
+  sendMessage(sender: string, content: string) {
+    const message: Message = {
+      id: crypto.randomUUID(),
+      sender,
+      content,
+      timestamp: Date.now()
+    };
+
+    this.hub.emit(`chat.${this.roomId}.message`, message);
+  }
+
+  join(username: string) {
+    this.hub.emit(`chat.${this.roomId}.join`, username);
+  }
+
+  leave(username: string) {
+    this.hub.emit(`chat.${this.roomId}.leave`, username);
+  }
+}
+
+// Usage example
+const room = new ChatRoom('general');
+
+// Simulate user interactions
+room.join('Alice');
+room.sendMessage('Alice', 'Hello everyone!');
+room.join('Bob');
+room.sendMessage('Bob', 'Hi Alice!');
+room.leave('Alice');
+```
+
+## Error Handling
+
+@brainstack/hub provides built-in error handling:
+
+```typescript
+// Global error handler
+hub.on('error', (error) => {
+  console.error('Event error:', error);
+});
+
+// Handler that might throw
+hub.on('process.data', (data) => {
+  if (!data.valid) {
+    throw new Error('Invalid data');
+  }
+  // Process data...
+});
+
+// Error will be caught and emitted as 'error' event
+hub.emit('process.data', { valid: false });
+```
+
+## Best Practices
+
+1. **Event Naming**
+   - Use consistent naming patterns (e.g., 'domain.action')
+   - Be specific about event purposes
+   - Use namespacing to organize events
+
+2. **Event Data**
+   - Keep payloads focused and minimal
+   - Use TypeScript interfaces for type safety
+   - Include necessary context in the payload
+
+3. **Event Handlers**
+   - Keep handlers focused on single responsibilities
+   - Handle errors appropriately
+   - Clean up subscriptions when no longer needed
+
+4. **Performance**
+   - Use specific event patterns instead of wildcards when possible
+   - Avoid emitting excessive events
+   - Consider event batching for high-frequency events
+
+## Next Steps
+
+Now that you understand the basics of @brainstack/hub, you can:
+1. Explore advanced event patterns and regex matching
+2. Implement complex event-driven workflows
+3. Integrate with other @brainstack packages
+4. Build real-time features in your applications
+
+In the next article, we'll dive into testing event-driven systems built with @brainstack/hub.
+
+## Conclusion
+
+@brainstack/hub provides a solid foundation for building event-driven systems. Its simple yet powerful API makes it easy to get started while supporting advanced patterns as your application grows. Continue exploring the series to learn more about advanced patterns, testing strategies, and real-world applications.

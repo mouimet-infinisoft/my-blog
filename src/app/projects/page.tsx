@@ -1,50 +1,50 @@
 import { type Metadata } from 'next'
 import Image from 'next/image'
-
 import { Card } from '@/components/Card'
 import { SimpleLayout } from '@/components/SimpleLayout'
-import logoAnimaginary from '@/images/logos/animaginary.svg'
-import logoCosmos from '@/images/logos/cosmos.svg'
-import logoHelioStream from '@/images/logos/helio-stream.svg'
-import logoOpenShuttle from '@/images/logos/open-shuttle.svg'
-import logoPlanetaria from '@/images/logos/planetaria.svg'
+import logoIBrain from '@/images/logos/animaginary.svg'
+import logoBrainstack from '@/images/logos/cosmos.svg'
+import logoSoSimple from '@/images/logos/helio-stream.svg'
+import logoBookt from '@/images/logos/open-shuttle.svg'
+import logoTelus from '@/images/logos/planetaria.svg'
 
 const projects = [
   {
-    name: 'Planetaria',
+    name: 'iBrain',
     description:
-      'Creating technology to empower civilians to explore space on their own terms.',
-    link: { href: 'http://planetaria.tech', label: 'planetaria.tech' },
-    logo: logoPlanetaria,
+      'AI-powered workflow automation platform featuring NLP, vector embeddings, and real-time speech processing. A multi-tenant SaaS solution with comprehensive API integrations.',
+    link: { href: 'https://github.com/ibrain-one/ibrain/wiki#ibrain-one-wiki', label: 'Wiki Documentation' },
+    logo: logoIBrain,
   },
   {
-    name: 'Animaginary',
+    name: '@brainstack Framework',
     description:
-      'High performance web animation library, hand-written in optimized WASM.',
-    link: { href: '#', label: 'github.com' },
-    logo: logoAnimaginary,
+      'Zero-dependency TypeScript ecosystem with 29 packages for AI-driven development. Features modules for dependency injection, state management, and event handling.',
+    link: { href: 'https://github.com/Infinisoft-inc/public/tree/main/Packages/%40brainstack#brainstack-framework', label: 'github.com/brainstack' },
+    logo: logoBrainstack,
   },
   {
-    name: 'HelioStream',
+    name: 'So Simple SaaS Platform',
     description:
-      'Real-time video streaming library, optimized for interstellar transmission.',
-    link: { href: '#', label: 'github.com' },
-    logo: logoHelioStream,
+      'Multi-tenant platform with real-time dashboard reporting and operational optimization, increasing service coverage by 70%.',
+    link: { href: 'https://infinisoft.world/', label: 'Client Project' },
+    logo: logoSoSimple,
   },
   {
-    name: 'cosmOS',
+    name: 'Bookt Workforce Platform',
     description:
-      'The operating system that powers our Planetaria space shuttles.',
-    link: { href: '#', label: 'github.com' },
-    logo: logoCosmos,
+      'Microservices-based scheduling and communication platform with real-time Firebase integration for dynamic updates.',
+    link: { href: 'https://www.linkedin.com/in/mouimet-infinisoft', label: 'Client Project' },
+    logo: logoBookt,
   },
   {
-    name: 'OpenShuttle',
+    name: 'Telus Health Storage',
     description:
-      'The schematics for the first rocket I designed that successfully made it to orbit.',
-    link: { href: '#', label: 'github.com' },
-    logo: logoOpenShuttle,
+      'High-availability AWS S3-compatible storage proxy API integrated with Telus HCP, featuring robust state machine for business rules.',
+    link: { href: 'https://www.npmjs.com/~infinisoft-world', label: 'Client Project' },
+    logo: logoTelus,
   },
+  // Add new projects here based on the resume
 ]
 
 function LinkIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
@@ -60,14 +60,14 @@ function LinkIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
 
 export const metadata: Metadata = {
   title: 'Projects',
-  description: 'Things I’ve made trying to put my dent in the universe.',
+  description: 'Innovative solutions I\'ve built to transform businesses through AI and cloud technologies.'
 }
 
 export default function Projects() {
   return (
     <SimpleLayout
-      title="Things I’ve made trying to put my dent in the universe."
-      intro="I’ve worked on tons of little projects over the years but these are the ones that I’m most proud of. Many of them are open-source, so if you see something that piques your interest, check out the code and contribute if you have ideas for how it can be improved."
+      title="Transforming businesses through innovative technology solutions."
+      intro="As a technology leader with over 20 years of experience, I've led the development of enterprise-grade software across finance, healthcare, retail, and transportation sectors. Here are some of the key projects that showcase my commitment to innovation and excellence."
     >
       <ul
         role="list"

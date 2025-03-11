@@ -187,8 +187,8 @@ function Role({ role }: { role: Role }) {
 function Resume() {
   let resume: Array<Role> = [
     {
-      company: 'Infinisoft',
-      title: 'CEO',
+      company: 'Infinisoft World Inc.',
+      title: 'Founder, CEO & Solution Architect',
       logo: logoPlanetaria,
       start: '2018',
       end: {
@@ -197,25 +197,25 @@ function Resume() {
       },
     },
     {
-      company: 'Airbnb',
-      title: 'Product Designer',
+      company: 'Equipe Microfix',
+      title: 'Team Lead, Full Stack Developer',
       logo: logoAirbnb,
-      start: '2014',
-      end: '2019',
+      start: '2015',
+      end: '2018',
     },
     {
-      company: 'Facebook',
-      title: 'iOS Software Engineer',
+      company: 'ScopServ International Inc.',
+      title: 'Team Lead, Full Stack Developer',
       logo: logoFacebook,
-      start: '2011',
-      end: '2014',
+      start: '2013',
+      end: '2015',
     },
     {
-      company: 'Starbucks',
-      title: 'Shift Supervisor',
+      company: 'Dorval-Lachine-LaSalle Health Center',
+      title: 'Team Lead, IT Infrastructure Consultant',
       logo: logoStarbucks,
-      start: '2008',
-      end: '2011',
+      start: '2006',
+      end: '2008',
     },
   ]
 
@@ -273,18 +273,13 @@ export default async function Home() {
       <Container className="mt-9">
         <div className="max-w-2xl">
           <h1 className="text-4xl font-bold tracking-tight text-zinc-800 sm:text-5xl dark:text-zinc-100">
-            Software engineer, founder, and knowledge lover.
+            Technology leader, innovator, and AI solutions architect.
           </h1>
           <p className="mt-6 text-base text-zinc-600 dark:text-zinc-400">
-            I’m Martin, since my early life, I discovered a deep passion to think, learn, understand and create. At the age of 12, I discovered software programming. That lit a fire inside of me, which is still burning after 27 years. That passion acted as a magnet across time and makes it possible to accomplish awesome acheivements.
+            I'm Martin Ouimet, an innovative technology leader with 20+ years of experience transforming businesses through AI and cloud solutions. As the founder and CEO of Infinisoft World, I've built a 25-person company delivering enterprise-grade software across finance, healthcare, retail, and transportation sectors.
           </p>
           <div className="mt-6 flex gap-6">
-            <SocialLink  target='_blank' href="https://x.com/InfinisoftI" aria-label="Follow on X" icon={XIcon} />
-            {/* <SocialLink
-              href="#"
-              aria-label="Follow on Instagram"
-              icon={InstagramIcon}
-            /> */}
+            <SocialLink target='_blank' href="https://x.com/InfinisoftI" aria-label="Follow on X" icon={XIcon} />
             <SocialLink
              target='_blank' 
               href="https://github.com/mouimet-infinisoft"

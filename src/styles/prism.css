@@ -1,5 +1,5 @@
 pre[class*='language-'] {
-  color: var(--color-zinc-100);
+  color: var(--tw-prose-pre-code);
 }
 
 .token.tag,
@@ -8,7 +8,7 @@ pre[class*='language-'] {
 .token.selector .class,
 .token.selector.class,
 .token.function {
-  color: var(--color-pink-400);
+  color: #ec4899; /* pink-500 */
 }
 
 .token.attr-name,
@@ -16,32 +16,55 @@ pre[class*='language-'] {
 .token.rule,
 .token.pseudo-class,
 .token.important {
-  color: var(--color-zinc-300);
+  color: #14b8a6; /* teal-500 */
 }
 
 .token.module {
-  color: var(--color-pink-400);
+  color: #ec4899; /* pink-500 */
 }
 
 .token.attr-value,
 .token.class,
 .token.string,
 .token.property {
-  color: var(--color-teal-300);
+  color: #34d399; /* emerald-400 */
 }
 
 .token.punctuation,
 .token.attr-equals {
-  color: var(--color-zinc-500);
+  color: #94a3b8; /* slate-400 */
 }
 
 .token.unit,
 .language-css .token.function {
-  color: var(--color-sky-200);
+  color: #38bdf8; /* sky-400 */
 }
 
 .token.comment,
 .token.operator,
 .token.combinator {
-  color: var(--color-zinc-400);
+  color: #94a3b8; /* slate-400 */
+}
+
+.token.number,
+.token.boolean {
+  color: #f59e0b; /* amber-500 */
+}
+
+.token.constant,
+.token.symbol {
+  color: #8b5cf6; /* violet-500 */
+}
+
+/* Line highlighting */
+.line-highlight {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #14b8a6; /* teal-500 */
+}
+
+/* Add padding and background for inline code */
+:not(pre) > code {
+  padding: 0.2em 0.4em;
+  background: var(--tw-prose-code-bg);
+  border-radius: 0.25rem;
 }
