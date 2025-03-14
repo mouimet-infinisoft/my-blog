@@ -21,6 +21,21 @@ export interface Series {
   description: string
   articles: ArticleWithSlug[]
   coverImage?: string
+  category?: string
+  author?: string
+  date?: string
+}
+
+export interface BlogSeries {
+  slug: string
+  title: string
+  description: string
+  coverImage?: string
+  category: string
+  articles: ArticleWithSlug[]
+  totalArticles: number
+  author: string
+  date: string
 }
 
 export interface ArticleNavigation {

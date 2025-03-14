@@ -20,8 +20,10 @@ import image2 from '@/images/photos/image-2.jpg'
 import image3 from '@/images/photos/image-3.jpg'
 import image4 from '@/images/photos/image-4.jpg'
 import image5 from '@/images/photos/image-5.jpg'
-import { type ArticleWithSlug, getAllArticles } from '@/lib/articles'
+import { type ArticleWithSlug, getAllArticles, getArticlesBySeries } from '@/lib/articles'
 import { formatDate } from '@/lib/formatDate'
+import { Series } from '@/lib/types'
+import { Calendar, ChevronRight, BookOpen } from '@/components/ui/icons'
 
 function MailIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -265,8 +267,35 @@ function Photos() {
   )
 }
 
+function SeriesCard({ series }: { series: Series }) {
+  const seriesSlug = series.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  return (
+    <Card as="article">
+      <div className="flex items-center gap-2">
+        <BookOpen className="h-5 w-5 text-teal-500" />
+        <span className="text-sm font-medium text-teal-500">Series</span>
+      </div>
+      <Card.Title href={`/series/${seriesSlug}`}>
+        {series.name}
+      </Card.Title>
+      <Card.Eyebrow as="div" className="flex items-center gap-2">
+        <span>{series.articles.length} articles</span>
+        <span>•</span>
+        <time dateTime={series.articles[0]?.date}>
+          {formatDate(series.articles[0]?.date)}
+        </time>
+      </Card.Eyebrow>
+      <Card.Description>{series.description}</Card.Description>
+      <Card.Cta>Read series</Card.Cta>
+    </Card>
+  )
+}
+
 export default async function Home() {
-  let articles = (await getAllArticles()).slice(0, 4)
+  const [articles, series] = await Promise.all([
+    getAllArticles(),
+    getArticlesBySeries(),
+  ])
 
   return (
     <>
@@ -299,9 +328,45 @@ export default async function Home() {
       <Container className="mt-24 md:mt-28">
         <div className="mx-auto grid max-w-xl grid-cols-1 gap-y-20 lg:max-w-none lg:grid-cols-2">
           <div className="flex flex-col gap-16">
-            {articles.map((article) => (
-              <Article key={article.slug} article={article} />
-            ))}
+            <div className="flex flex-col gap-16">
+              <div>
+                <h2 className="flex items-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  <BookOpen className="h-6 w-6 text-teal-500 mr-3" />
+                  Featured Series
+                </h2>
+                <div className="mt-4">
+                  {series.slice(0, 1).map((s) => (
+                    <SeriesCard key={s.name} series={s} />
+                  ))}
+                </div>
+                {series.length > 1 && (
+                  <Button
+                    href="/series"
+                    variant="secondary"
+                    className="mt-6 w-full"
+                  >
+                    View all series
+                  </Button>
+                )}
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                  Latest Articles
+                </h2>
+                <div className="mt-4 flex flex-col gap-8">
+                  {articles.slice(0, 3).map((article) => (
+                    <Article key={article.slug} article={article} />
+                  ))}
+                </div>
+                <Button
+                  href="/articles"
+                  variant="secondary"
+                  className="mt-6 w-full"
+                >
+                  View all articles
+                </Button>
+              </div>
+            </div>
           </div>
           <div className="space-y-10 lg:pl-16 xl:pl-24">
             <Newsletter />
