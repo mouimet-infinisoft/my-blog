@@ -1,0 +1,365 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Martin Ouimet',
+  date: '2024-04-04',
+  title: 'Extending InfiniCode: Building Custom Extensions',
+  description: 'Learn how to extend InfiniCode\'s functionality through custom extensions and plugins, with patterns for integration and communication.',
+  series: {
+    name: 'InfiniCode Series',
+    order: 5,
+    description: 'Deep dive into InfiniCode IDE through a series of articles covering its architecture, implementation, and advanced features.'
+  },
+  tags: ['extensions', 'plugins', 'integration', 'IDE', 'typescript', 'customization'],
+  category: 'Development Tools'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Extending InfiniCode: Building Custom Extensions
+
+As a bonus to our InfiniCode series, let's explore how to extend the IDE's functionality through custom extensions and plugins.
+
+## Extension Architecture
+
+InfiniCode provides a robust extension system built on a plugin architecture:
+
+```typescript
+interface ExtensionContext {
+  subscriptions: { dispose(): void }[];
+  workspaceState: StateManager;
+  globalState: StateManager;
+  extensionPath: string;
+}
+
+abstract class BaseExtension {
+  protected context: ExtensionContext;
+
+  constructor(context: ExtensionContext) {
+    this.context = context;
+  }
+
+  abstract activate(): void;
+  abstract deactivate(): void;
+
+  protected registerCommand(
+    command: string,
+    callback: (...args: any[]) => any
+  ) {
+    const disposable = commands.registerCommand(
+      command,
+      callback
+    );
+    this.context.subscriptions.push(disposable);
+  }
+}
+```
+
+## Creating Extensions
+
+### Basic Extension Template
+
+Start with a basic extension structure:
+
+```typescript
+class CustomInfiniExtension extends BaseExtension {
+  private disposables: { dispose(): void }[] = [];
+
+  activate() {
+    // Register commands
+    this.registerCommand(
+      'extension.customAction',
+      this.handleCustomAction
+    );
+
+    // Register providers
+    this.registerProviders();
+
+    // Set up event listeners
+    this.setupEventListeners();
+  }
+
+  deactivate() {
+    // Clean up resources
+    this.disposables.forEach(d => d.dispose());
+  }
+
+  private handleCustomAction = async () => {
+    // Implement custom functionality
+  };
+
+  private registerProviders() {
+    // Register custom providers
+    const provider = new CustomProvider();
+    this.disposables.push(
+      workspace.registerProvider('custom', provider)
+    );
+  }
+
+  private setupEventListeners() {
+    // Listen for IDE events
+    workspace.onDidChangeConfiguration(
+      this.handleConfigChange,
+      this,
+      this.disposables
+    );
+  }
+}
+```
+
+### Integration Points
+
+Implement custom integration points:
+
+```typescript
+interface CustomProvider {
+  provideItems(): Promise<CustomItem[]>;
+  resolveItem(item: CustomItem): Promise<CustomItem>;
+}
+
+class CustomViewProvider implements CustomProvider {
+  private view: CustomView;
+
+  constructor() {
+    this.view = new CustomView();
+  }
+
+  async provideItems() {
+    return this.view.getItems();
+  }
+
+  async resolveItem(item: CustomItem) {
+    return this.view.resolveItem(item);
+  }
+
+  // Custom view integration
+  createTreeView(container: ViewContainer) {
+    return window.createTreeView('customView', {
+      treeDataProvider: this,
+      showCollapseAll: true
+    });
+  }
+}
+```
+
+## Extension Features
+
+### Custom UI Components
+
+Create custom UI elements:
+
+```typescript
+interface CustomViewOptions {
+  title: string;
+  commands?: Command[];
+  contextMenu?: Menu;
+}
+
+class CustomView extends ViewProvider {
+  private options: CustomViewOptions;
+  private container: HTMLElement;
+
+  constructor(options: CustomViewOptions) {
+    super();
+    this.options = options;
+    this.setupView();
+  }
+
+  private setupView() {
+    this.container = document.createElement('div');
+    this.container.className = 'custom-view';
+
+    // Add toolbar
+    const toolbar = this.createToolbar();
+    this.container.appendChild(toolbar);
+
+    // Add content area
+    const content = this.createContent();
+    this.container.appendChild(content);
+
+    // Add event listeners
+    this.setupEventListeners();
+  }
+
+  private createToolbar() {
+    const toolbar = document.createElement('div');
+    toolbar.className = 'custom-view-toolbar';
+
+    if (this.options.commands) {
+      this.options.commands.forEach(command => {
+        const button = this.createToolbarButton(command);
+        toolbar.appendChild(button);
+      });
+    }
+
+    return toolbar;
+  }
+}
+```
+
+### Command Integration
+
+Implement custom commands:
+
+```typescript
+class CommandRegistry {
+  private commands = new Map<string, Command>();
+
+  register(id: string, command: Command) {
+    if (this.commands.has(id)) {
+      throw new Error(`Command ${id} already registered`);
+    }
+    this.commands.set(id, command);
+    return {
+      dispose: () => this.commands.delete(id)
+    };
+  }
+
+  async execute(id: string, ...args: any[]) {
+    const command = this.commands.get(id);
+    if (!command) {
+      throw new Error(`Command ${id} not found`);
+    }
+    return command.execute(...args);
+  }
+}
+
+class CustomCommand implements Command {
+  constructor(
+    private id: string,
+    private callback: (...args: any[]) => any
+  ) {}
+
+  async execute(...args: any[]) {
+    try {
+      return await this.callback(...args);
+    } catch (error) {
+      console.error(
+        `Error executing command ${this.id}:`,
+        error
+      );
+      throw error;
+    }
+  }
+}
+```
+
+## Extension Communication
+
+### Event System
+
+Implement event-based communication:
+
+```typescript
+class ExtensionEventBus {
+  private listeners = new Map<string, Set<Function>>();
+
+  on(event: string, callback: Function) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)!.add(callback);
+
+    return {
+      dispose: () => {
+        this.listeners.get(event)?.delete(callback);
+      }
+    };
+  }
+
+  emit(event: string, ...args: any[]) {
+    const callbacks = this.listeners.get(event);
+    if (callbacks) {
+      callbacks.forEach(callback => {
+        try {
+          callback(...args);
+        } catch (error) {
+          console.error(
+            `Error in event listener for ${event}:`,
+            error
+          );
+        }
+      });
+    }
+  }
+}
+```
+
+### Message Passing
+
+Implement secure message passing:
+
+```typescript
+class ExtensionMessaging {
+  private channels = new Map<string, MessageChannel>();
+  private handlers = new Map<string, Function>();
+
+  createChannel(name: string) {
+    if (this.channels.has(name)) {
+      throw new Error(`Channel ${name} already exists`);
+    }
+
+    const channel = new MessageChannel();
+    this.channels.set(name, channel);
+
+    channel.port1.onmessage = this.handleMessage.bind(this);
+    return channel.port2;
+  }
+
+  registerHandler(type: string, handler: Function) {
+    this.handlers.set(type, handler);
+    return {
+      dispose: () => this.handlers.delete(type)
+    };
+  }
+
+  private handleMessage(event: MessageEvent) {
+    const { type, payload } = event.data;
+    const handler = this.handlers.get(type);
+
+    if (handler) {
+      try {
+        handler(payload);
+      } catch (error) {
+        console.error(
+          `Error handling message ${type}:`,
+          error
+        );
+      }
+    }
+  }
+}
+```
+
+## Best Practices
+
+1. **Extension Design**
+   - Follow single responsibility principle
+   - Implement proper cleanup
+   - Use type-safe interfaces
+
+2. **Integration**
+   - Use provided extension points
+   - Follow security guidelines
+   - Handle errors gracefully
+
+3. **Performance**
+   - Lazy load resources
+   - Minimize startup impact
+   - Optimize event handlers
+
+4. **Maintenance**
+   - Document API usage
+   - Version extensions properly
+   - Provide clear activation events
+
+## Conclusion
+
+InfiniCode's extension system provides a powerful way to customize and enhance the IDE's functionality. By following these patterns and best practices, you can create robust extensions that integrate seamlessly with the core platform.
+
+This bonus article completes our comprehensive series on InfiniCode, covering everything from core architecture to extension development.
