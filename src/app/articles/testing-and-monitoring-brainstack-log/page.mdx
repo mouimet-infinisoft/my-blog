@@ -1,0 +1,301 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  author: 'Martin Ouimet',
+  date: '2024-03-22',
+  title: 'Testing and Monitoring with @brainstack/log',
+  description: 'Learn effective strategies for testing logging implementations and monitoring applications using @brainstack/log.',
+  series: {
+    name: '@brainstack/log Series',
+    order: 3,
+    description: 'Master application logging with @brainstack/log through a series of in-depth articles covering core concepts, integrations, best practices, and real-world applications.'
+  },
+  tags: ['logging', 'testing', 'monitoring', 'brainstack', 'log', 'typescript'],
+  category: 'Testing'
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Testing and Monitoring with @brainstack/log
+
+Testing logging implementations and monitoring log output are crucial aspects of maintaining reliable applications. This article explores strategies for testing logging code and implementing effective monitoring using @brainstack/log.
+
+## Testing Logging Implementations
+
+### Creating Test Integrations
+
+Test your logging code by creating mock integrations:
+
+```typescript
+class TestLogIntegration implements LoggerIntegration {
+  public logs: any[] = [];
+
+  log(message: any) { this.logs.push({ level: 'log', message }); }
+  info(message: any) { this.logs.push({ level: 'info', message }); }
+  warn(message: any) { this.logs.push({ level: 'warn', message }); }
+  error(message: any) { this.logs.push({ level: 'error', message }); }
+  verbose(message: any) { this.logs.push({ level: 'verbose', message }); }
+
+  clear() {
+    this.logs = [];
+  }
+
+  getLogsByLevel(level: string) {
+    return this.logs.filter(log => log.level === level);
+  }
+}
+```
+
+### Testing Log Levels
+
+Verify that log level filtering works correctly:
+
+```typescript
+describe('Logger Level Testing', () => {
+  let testIntegration: TestLogIntegration;
+  let logger;
+
+  beforeEach(() => {
+    testIntegration = new TestLogIntegration();
+    logger = createLogger(3, [testIntegration]);
+  });
+
+  test('should respect log level hierarchy', () => {
+    logger.verbose('Debug message'); // Should be filtered
+    logger.log('Log message');
+    logger.info('Info message');
+    logger.warn('Warning message');
+    logger.error('Error message');
+
+    expect(testIntegration.logs.length).toBe(4);
+    expect(testIntegration.getLogsByLevel('verbose')).toHaveLength(0);
+    expect(testIntegration.getLogsByLevel('error')).toHaveLength(1);
+  });
+});
+```
+
+### Testing Custom Integrations
+
+Test your custom logging integrations thoroughly:
+
+```typescript
+describe('BufferedLogIntegration', () => {
+  let bufferedIntegration: BufferedLogIntegration;
+  let logger;
+
+  beforeEach(() => {
+    bufferedIntegration = new BufferedLogIntegration();
+    logger = createLogger(3, [bufferedIntegration]);
+  });
+
+  test('should buffer logs and flush when full', async () => {
+    const mockApi = jest.spyOn(api, 'sendLogs');
+
+    // Fill buffer
+    for (let i = 0; i < 100; i++) {
+      logger.info(`Test message ${i}`);
+    }
+
+    // Wait for flush
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(mockApi).toHaveBeenCalled();
+    expect(mockApi.mock.calls[0][0]).toHaveLength(100);
+  });
+});
+```
+
+## Monitoring Patterns
+
+### Metrics Collection
+
+Implement metrics collection for your logging:
+
+```typescript
+class MetricsLogIntegration implements LoggerIntegration {
+  private metrics = {
+    logCount: 0,
+    errorCount: 0,
+    warningCount: 0,
+    lastError: null as string | null,
+    startTime: Date.now()
+  };
+
+  private updateMetrics(level: string, message: any) {
+    this.metrics.logCount++;
+    
+    switch (level) {
+      case 'error':
+        this.metrics.errorCount++;
+        this.metrics.lastError = typeof message === 'string' 
+          ? message 
+          : JSON.stringify(message);
+        break;
+      case 'warn':
+        this.metrics.warningCount++;
+        break;
+    }
+  }
+
+  getMetrics() {
+    return {
+      ...this.metrics,
+      uptime: Date.now() - this.metrics.startTime,
+      errorRate: this.metrics.errorCount / this.metrics.logCount
+    };
+  }
+
+  log(message: any) { this.updateMetrics('log', message); }
+  info(message: any) { this.updateMetrics('info', message); }
+  warn(message: any) { this.updateMetrics('warn', message); }
+  error(message: any) { this.updateMetrics('error', message); }
+  verbose(message: any) { this.updateMetrics('verbose', message); }
+}
+```
+
+### Health Checks
+
+Create health check endpoints using log metrics:
+
+```typescript
+class HealthCheck {
+  private metricsIntegration: MetricsLogIntegration;
+  private logger;
+
+  constructor(logger) {
+    this.logger = logger;
+    this.metricsIntegration = new MetricsLogIntegration();
+    logger.addIntegration(this.metricsIntegration);
+  }
+
+  getHealth() {
+    const metrics = this.metricsIntegration.getMetrics();
+    
+    return {
+      status: metrics.errorRate < 0.05 ? 'healthy' : 'degraded',
+      metrics: {
+        errorRate: metrics.errorRate,
+        totalLogs: metrics.logCount,
+        uptime: metrics.uptime
+      },
+      lastError: metrics.lastError
+    };
+  }
+}
+```
+
+### Real-time Log Analysis
+
+Implement real-time log analysis for monitoring:
+
+```typescript
+class LogAnalyzer {
+  private patterns: Map<RegExp, (log: any) => void> = new Map();
+  
+  constructor(private logger) {
+    this.setupDefaultPatterns();
+  }
+
+  private setupDefaultPatterns() {
+    // Monitor for authentication failures
+    this.addPattern(
+      /authentication failed/i,
+      (log) => this.handleAuthFailure(log)
+    );
+
+    // Monitor for high latency
+    this.addPattern(
+      /request.*completed.*(\d+)ms/i,
+      (log) => this.handleHighLatency(log)
+    );
+
+    // Monitor for database errors
+    this.addPattern(
+      /database.*error/i,
+      (log) => this.handleDatabaseError(log)
+    );
+  }
+
+  addPattern(pattern: RegExp, handler: (log: any) => void) {
+    this.patterns.set(pattern, handler);
+    return this;
+  }
+
+  analyze(log: any) {
+    const message = typeof log === 'string' 
+      ? log 
+      : JSON.stringify(log);
+
+    this.patterns.forEach((handler, pattern) => {
+      if (pattern.test(message)) {
+        handler(log);
+      }
+    });
+  }
+
+  private handleAuthFailure(log: any) {
+    this.logger.warn({
+      message: 'Authentication failure detected',
+      context: { originalLog: log }
+    });
+  }
+
+  private handleHighLatency(log: any) {
+    const match = log.message.match(/(\d+)ms/);
+    if (match && parseInt(match[1]) > 1000) {
+      this.logger.warn({
+        message: 'High latency detected',
+        context: { 
+          latency: parseInt(match[1]),
+          originalLog: log 
+        }
+      });
+    }
+  }
+
+  private handleDatabaseError(log: any) {
+    this.logger.error({
+      message: 'Database error detected',
+      context: { originalLog: log }
+    });
+  }
+}
+```
+
+## Monitoring Setup Example
+
+Here's a complete example combining these monitoring patterns:
+
+```typescript
+import { createLogger, LoggerIntegration } from '@brainstack/log';
+
+// Create logger with monitoring
+const logger = createLogger(3);
+const metricsIntegration = new MetricsLogIntegration();
+const healthCheck = new HealthCheck(logger);
+const logAnalyzer = new LogAnalyzer(logger);
+
+// Add monitoring integrations
+logger.addIntegration(metricsIntegration);
+logger.addIntegration({
+  log: (message) => logAnalyzer.analyze(message),
+  info: (message) => logAnalyzer.analyze(message),
+  warn: (message) => logAnalyzer.analyze(message),
+  error: (message) => logAnalyzer.analyze(message),
+  verbose: (message) => logAnalyzer.analyze(message)
+});
+
+// Example endpoint for health metrics
+app.get('/health', (req, res) => {
+  res.json(healthCheck.getHealth());
+});
+```
+
+## Conclusion
+
+Effective testing and monitoring are essential for maintaining reliable logging systems. @brainstack/log's flexible architecture allows you to implement comprehensive testing strategies and sophisticated monitoring solutions. This concludes our series on @brainstack/log, where we've covered everything from basic concepts to advanced patterns and monitoring strategies.
