@@ -8,6 +8,7 @@ export interface Article {
   series?: {
     name: string
     order: number
+    coverImage?: string
     description?: string
   }
 }

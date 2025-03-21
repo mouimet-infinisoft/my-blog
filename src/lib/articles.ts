@@ -71,6 +71,7 @@ export async function getArticlesBySeries(): Promise<Series[]> {
         seriesMap.set(article.series.name, {
           name: article.series.name,
           description: article.series.description || '',
+          coverImage: article.series.coverImage || '',
           articles: []
         })
       }

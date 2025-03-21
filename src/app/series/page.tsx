@@ -11,6 +11,13 @@ import { Button } from '@/components/Button'
 function SeriesCard({ series }: { series: BlogSeries }) {
   return (
     <Card className="group relative overflow-hidden transition-all hover:shadow-lg">
+      {series.coverImage && (
+        <img
+          src={series.coverImage}
+          alt={series.title}
+          className="object-cover"
+        />
+      )}
       <div className="p-6">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-zinc-500 dark:text-zinc-400" />

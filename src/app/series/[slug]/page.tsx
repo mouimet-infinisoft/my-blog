@@ -103,6 +103,7 @@ export default async function Series({ params }: { params: { slug: string } }) {
     <SimpleLayout
       title={blogSeries.title}
       intro={blogSeries.description}
+      coverImage={blogSeries.coverImage}
     >
       <div className="flex items-center mb-8">
         <Button

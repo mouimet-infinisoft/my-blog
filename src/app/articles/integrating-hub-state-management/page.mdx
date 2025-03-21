@@ -8,7 +8,8 @@ export const article = {
   series: {
     name: '@brainstack/hub Series',
     order: 6,
-    description: 'Master event-driven architecture with @brainstack/hub through a series of in-depth articles covering core concepts, advanced patterns, testing strategies, and real-world applications.'
+    description: 'Master event-driven architecture with @brainstack/hub through a series of in-depth articles covering core concepts, advanced patterns, testing strategies, and real-world applications.',
+    coverImage: '/images/event_driven_series.png'
   },
   tags: ['state-management', 'integration', 'brainstack', 'hub', 'store', 'typescript'],
   category: 'Integration'
@@ -228,9 +229,9 @@ class ValidatedState {
           ...payload
         }));
         
-        this.hub.emit(\`\${eventType}.success\`, payload);
+        this.hub.emit(`${eventType}.success`, payload);
       } else {
-        this.hub.emit(\`\${eventType}.error\`, {
+        this.hub.emit(`${eventType}.error`, {
           message: 'Validation failed',
           payload
         });
@@ -379,7 +380,7 @@ class SelectiveState {
     const subs = this.subscribers.get(path);
     if (subs) {
       subs.forEach(subscriberId => {
-        this.hub.emit(\`state.updated.\${subscriberId}\`, {
+        this.hub.emit(`state.updated.${subscriberId}`, {
           path,
           value
         });
