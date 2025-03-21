@@ -10,7 +10,7 @@ import { Button } from '@/components/Button'
 
 function SeriesCard({ series }: { series: BlogSeries }) {
   return (
-    <Card className="group relative overflow-hidden transition-all hover:shadow-lg">
+    <Card className="group relative overflow-hidden transition-all hover:shadow-lg border border-zinc-200 dark:border-zinc-600 rounded-[10px]">
       {series.coverImage && (
         <img
           src={series.coverImage}
@@ -86,6 +86,7 @@ export default async function SeriesIndex() {
     <SimpleLayout
       title="Blog Series"
       intro="Dive deep into various topics with our carefully curated series of articles."
+      coverImage="/images/blog_series.png"
     >
       <div className="grid gap-8 sm:grid-cols-2">
         {blogSeries.map((s, i) => (
