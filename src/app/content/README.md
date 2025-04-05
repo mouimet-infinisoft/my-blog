@@ -42,9 +42,30 @@ The `_series.json` file contains metadata for the series:
   "slug": "brainstack-hub-series",
   "coverImage": "/images/brainstack-hub.png",
   "category": "Event-Driven Architecture",
-  "githubRepo": "https://github.com/Infinisoft-inc/public/tree/main/Packages/%40brainstack/hub/series"
+  "githubRepo": "https://github.com/Infinisoft-inc/public/tree/main/Packages/%40brainstack/hub/series",
+  "status": "published",
+  "publishDate": "2024-04-15",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2024-04-15"
+  }
 }
 ```
+
+### Publication Status Fields
+
+Series include the following publication status fields:
+
+- `status`: The current publication status of the series
+  - `draft`: Series is still being written and edited
+  - `ready`: Series is complete but waiting to be scheduled
+  - `scheduled`: Series is complete and has a future publication date
+  - `published`: Series is live and visible to readers
+  - `featured`: Published series that is highlighted or promoted
+- `publishDate`: The date when the series should be published (ISO 8601 format)
+- `releaseSchedule`: Configuration for article release scheduling
+  - `frequency`: How often to release articles (`weekly`, `biweekly`, or `monthly`)
+  - `startDate`: When to start releasing articles (ISO 8601 format)
 
 ## Article Structure
 
@@ -63,7 +84,9 @@ export const article = {
   slug: "understanding-event-hub",
   tags: ["event-driven", "architecture", "brainstack", "hub", "typescript"],
   category: "Architecture",
-  githubRepo: "https://github.com/Infinisoft-inc/public/tree/main/Packages/%40brainstack/hub/series/01-understanding"
+  githubRepo: "https://github.com/Infinisoft-inc/public/tree/main/Packages/%40brainstack/hub/series/01-understanding",
+  status: "published",
+  publishDate: "2024-01-15"
 }
 
 export const metadata = {
@@ -77,6 +100,18 @@ export default (props) => <ArticleLayout article={article} {...props} />
 
 Content goes here...
 ```
+
+### Publication Status Fields
+
+Articles include the following publication status fields:
+
+- `status`: The current publication status of the article
+  - `draft`: Article is still being written and edited
+  - `ready`: Article is complete but waiting to be scheduled
+  - `scheduled`: Article is complete and has a future publication date
+  - `published`: Article is live and visible to readers
+  - `featured`: Published article that is highlighted or promoted
+- `publishDate`: The date when the article should be published (ISO 8601 format)
 
 ## Standalone Articles
 
@@ -107,3 +142,13 @@ Standalone articles (not part of any series) are stored in the `standalone/` dir
 
 1. Create a new MDX file in the `standalone/` directory
 2. Include the article metadata without `seriesSlug` and `order` properties
+
+## Content Visibility
+
+Content visibility is determined by the `status` and `publishDate` fields:
+
+- In development mode, all content is visible regardless of status
+- In production mode:
+  - Content with `status` of `published` or `featured` is always visible
+  - Content with `status` of `scheduled` is visible only if the current date is on or after the `publishDate`
+  - Content with `status` of `draft` or `ready` is never visible

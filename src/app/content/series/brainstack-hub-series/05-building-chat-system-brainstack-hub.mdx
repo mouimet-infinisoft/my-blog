@@ -10,7 +10,9 @@ export const article = {
   slug: "building-chat-system-brainstack-hub",
   tags: ["chat", "websocket", "real-time", "brainstack", "hub", "typescript"],
   category: "Real-World Examples",
-  githubRepo: ""
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05",
 }
 
 export const metadata = {
@@ -92,7 +94,7 @@ class ChatServer {
 
   private joinRoom(userId: string, roomId: string) {
     let room = this.rooms.get(roomId);
-    
+
     if (!room) {
       room = {
         id: roomId,
@@ -103,7 +105,7 @@ class ChatServer {
     }
 
     room.users.add(userId);
-    
+
     // Add room to user's sessions
     const userRooms = this.userSessions.get(userId) || [];
     userRooms.push(roomId);
@@ -121,7 +123,7 @@ class ChatServer {
     if (!room) return;
 
     room.users.delete(userId);
-    
+
     // Remove room from user's sessions
     const userRooms = this.userSessions.get(userId) || [];
     this.userSessions.set(

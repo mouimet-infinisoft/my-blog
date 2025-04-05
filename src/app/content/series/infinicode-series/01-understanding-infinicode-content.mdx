@@ -1,8 +1,32 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  title: "Understanding InfiniCode",
+  description: "An introduction to InfiniCode, a modern IDE that combines visual editing with traditional code editing.",
+  author: "Martin Ouimet",
+  date: "2025-04-01",
+  order: 1,
+  seriesSlug: "infinicode-series",
+  slug: "understanding-infinicode-content",
+  tags: ["infinicode", "ide", "visual-editing", "development-tools"],
+  category: "Development Tools",
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05"
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
 ## Introduction
 
 InfiniCode represents a significant evolution in integrated development environments by seamlessly combining visual editing capabilities with traditional code editing. This innovative approach allows developers to work with both paradigms simultaneously, maintaining code quality while accelerating development.
 
-<video 
+<video
   className="rounded-2xl shadow-lg"
   controls
   autoPlay

@@ -10,7 +10,9 @@ export const article = {
   slug: "getting-started-brainstack-hub",
   tags: ["tutorial", "getting-started", "brainstack", "hub", "typescript", "events"],
   category: "Tutorials",
-  githubRepo: ""
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05",
 }
 
 export const metadata = {
@@ -139,7 +141,7 @@ class ChatRoom {
   constructor(private roomId: string) {
     // Listen for new messages
     this.hub.on(`chat.${roomId}.message`, this.handleMessage);
-    
+
     // Listen for user presence
     this.hub.on(`chat.${roomId}.join`, this.handleUserJoin);
     this.hub.on(`chat.${roomId}.leave`, this.handleUserLeave);

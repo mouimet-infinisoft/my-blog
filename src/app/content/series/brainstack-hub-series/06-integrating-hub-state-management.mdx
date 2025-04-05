@@ -10,7 +10,9 @@ export const article = {
   slug: "integrating-hub-state-management",
   tags: ["state-management", "integration", "brainstack", "hub", "store", "typescript"],
   category: "Integration",
-  githubRepo: ""
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05",
 }
 
 export const metadata = {
@@ -128,7 +130,7 @@ class EventSourcedState {
   // Reconstruct state from events
   reconstructState(upToTimestamp?: number) {
     let state = {};
-    
+
     const events = upToTimestamp
       ? this.eventLog.filter(e => e.timestamp <= upToTimestamp)
       : this.eventLog;
@@ -216,17 +218,17 @@ class ValidatedState {
     validator: (payload: any) => boolean
   ) {
     this.validators.set(eventType, validator);
-    
+
     // Create validated event handler
     this.hub.on(eventType, (payload) => {
       const validate = this.validators.get(eventType);
-      
+
       if (validate?.(payload)) {
         this.store.mutate((state) => ({
           ...state,
           ...payload
         }));
-        
+
         this.hub.emit(`${eventType}.success`, payload);
       } else {
         this.hub.emit(`${eventType}.error`, {
@@ -258,7 +260,7 @@ const { BrainStackProvider, useBrainStack } = createBrainstack({
 
 function DataComponent() {
   const { store, hub } = useBrainStack();
-  
+
   useEffect(() => {
     // Subscribe to remote data updates
     hub.on('data.updated', (newData) => {
@@ -310,7 +312,7 @@ class BatchedState {
 
   private queueUpdate = (update: any) => {
     this.batchedUpdates.push(update);
-    
+
     if (!this.batchTimeout) {
       this.batchTimeout = setTimeout(() => {
         this.processBatch();
@@ -365,11 +367,11 @@ class SelectiveState {
       // Update nested path
       const paths = path.split('.');
       let current = state;
-      
+
       for (let i = 0; i < paths.length - 1; i++) {
         current = current[paths[i]] = { ...current[paths[i]] };
       }
-      
+
       current[paths[paths.length - 1]] = value;
       return state;
     });

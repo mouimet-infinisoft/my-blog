@@ -4,5 +4,11 @@
   "slug": "brainstack-inject-series",
   "coverImage": "/images/inject_series.png",
   "category": "Tutorials",
-  "githubRepo": ""
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2025-04-05"
+  }
 }

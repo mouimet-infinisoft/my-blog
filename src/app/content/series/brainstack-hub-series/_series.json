@@ -4,5 +4,11 @@
   "slug": "brainstack-hub-series",
   "coverImage": "/images/hub_series.png",
   "category": "Architecture",
-  "githubRepo": ""
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2025-04-05"
+  }
 }

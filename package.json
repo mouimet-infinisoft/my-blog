@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "cross-post": "ts-node -P src/scripts/tsconfig.json src/scripts/cross-post.ts"
+    "cross-post": "ts-node -P src/scripts/tsconfig.json src/scripts/cross-post.ts",
+    "add-publication-states": "ts-node -P src/scripts/tsconfig.json src/scripts/add-publication-states.ts",
+    "fix-article-commas": "ts-node -P src/scripts/tsconfig.json src/scripts/fix-article-commas.ts"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {

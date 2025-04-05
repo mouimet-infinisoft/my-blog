@@ -10,7 +10,9 @@ export const article = {
   slug: "advanced-event-patterns-brainstack-hub",
   tags: ["event-sourcing", "event-patterns", "brainstack", "hub", "typescript", "advanced"],
   category: "Advanced",
-  githubRepo: ""
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05",
 }
 
 export const metadata = {
@@ -60,10 +62,10 @@ class EventStore {
   private processEvent = (event: StateEvent) => {
     this.events.push(event);
     this.version++;
-    
+
     // Apply the event to current state
     this.currentState = this.applyEvent(this.currentState, event);
-    
+
     // Emit the updated state
     this.hub.emit('state.updated', {
       state: this.currentState,
@@ -90,9 +92,9 @@ class EventStore {
   replayToTimestamp(timestamp: number) {
     this.currentState = {};
     this.version = 0;
-    
+
     const eventsToReplay = this.events.filter(e => e.timestamp <= timestamp);
-    
+
     eventsToReplay.forEach(event => {
       this.currentState = this.applyEvent(this.currentState, event);
       this.version++;
@@ -120,10 +122,10 @@ class ComplexEventProcessor {
 
   private processSensorReading = (reading: any) => {
     const now = Date.now();
-    
+
     // Add new reading to window
     this.eventWindow.push({ ...reading, timestamp: now });
-    
+
     // Remove old events
     this.eventWindow = this.eventWindow.filter(
       e => now - e.timestamp <= this.windowSize
@@ -158,7 +160,7 @@ class ComplexEventProcessor {
   private checkThresholds() {
     // Count events above threshold in window
     const highReadings = this.eventWindow.filter(e => e.value > 100);
-    
+
     if (highReadings.length >= 3) {
       this.hub.emit('threshold.exceeded', {
         count: highReadings.length,
@@ -176,14 +178,14 @@ class ComplexEventProcessor {
 ```typescript
 class EventBroadcaster {
   private hub = createEventHub();
-  
+
   constructor() {
     // Match all events in specific domains
     this.hub.on(/^(user|system)\..*/, this.logDomainEvent);
-    
+
     // Match specific event patterns
     this.hub.on(/error\.(critical|warning)/, this.handleError);
-    
+
     // Match events with wildcard segments
     this.hub.on('notification.*.sent', this.trackNotification);
   }
@@ -219,7 +221,7 @@ Correlating related events is crucial in distributed systems. Here's how to impl
 class EventCorrelator {
   private hub = createEventHub();
   private correlationMap = new Map<string, any[]>();
-  
+
   constructor() {
     this.hub.on('transaction.started', this.startCorrelation);
     this.hub.on('transaction.step', this.correlateStep);
@@ -242,17 +244,17 @@ class EventCorrelator {
     const correlationId = event.correlationId;
     const events = this.correlationMap.get(correlationId) || [];
     events.push(event);
-    
+
     // Process the complete transaction
     this.processTransaction(correlationId, events);
-    
+
     // Cleanup
     this.correlationMap.delete(correlationId);
   }
 
   private processTransaction(correlationId: string, events: any[]) {
     const duration = events[events.length - 1].timestamp - events[0].timestamp;
-    
+
     this.hub.emit('transaction.analyzed', {
       correlationId,
       events: events.length,
