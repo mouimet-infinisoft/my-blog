@@ -1,10 +1,11 @@
 import { Card } from '@/components/Card'
 import { SimpleLayout } from '@/components/SimpleLayout'
-import { ArticleWithSlug, getAllArticles, getArticlesBySeries } from '@/lib/articles'
+import { getAllArticles, getStandaloneArticles } from '@/lib/content'
 import { formatDate } from '@/lib/formatDate'
 import { Button } from '@/components/Button'
 import { MotionCard } from '@/components/ui/MotionCard'
-import { Calendar, ChevronRight, BookOpen, Layers } from '@/components/ui/icons'
+import { Calendar, ChevronRight } from '@/components/ui/icons'
+import { ArticleWithSlug } from '@/lib/types'
 
 function Badge({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
@@ -57,16 +58,7 @@ export const metadata = {
 }
 
 export default async function ArticlesIndex() {
-  const [articles, series] = await Promise.all([
-    getAllArticles(),
-    getArticlesBySeries(),
-  ])
-
-  const seriesArticleSlugs = series
-    .flatMap(s => s.articles)
-    .map(a => a.slug)
-  const standaloneArticles = articles
-    .filter(article => !seriesArticleSlugs.includes(article.slug))
+  const standaloneArticles = await getStandaloneArticles()
 
   return (
     <SimpleLayout

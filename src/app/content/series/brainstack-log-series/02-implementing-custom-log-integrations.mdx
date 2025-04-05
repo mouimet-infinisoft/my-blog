@@ -1,17 +1,16 @@
 import { ArticleLayout } from '@/components/ArticleLayout'
 
 export const article = {
-  author: 'Martin Ouimet',
-  date: '2024-03-21',
-  title: 'Implementing Custom Log Integrations with @brainstack/log',
-  description: 'Learn how to create custom logging integrations and implement advanced logging patterns using @brainstack/log.',
-  series: {
-    name: '@brainstack/log Series',
-    order: 2,
-    description: 'Master application logging with @brainstack/log through a series of in-depth articles covering core concepts, integrations, best practices, and real-world applications.'
-  },
-  tags: ['logging', 'integrations', 'brainstack', 'log', 'typescript', 'patterns'],
-  category: 'Logging'
+  title: "Implementing Custom Log Integrations with @brainstack/log",
+  description: "Learn how to create custom logging integrations and implement advanced logging patterns using @brainstack/log.",
+  author: "Martin Ouimet",
+  date: "2024-03-21",
+  order: 2,
+  seriesSlug: "brainstack-log-series",
+  slug: "implementing-custom-log-integrations",
+  tags: ["logging", "integrations", "brainstack", "log", "typescript", "patterns"],
+  category: "Logging",
+  githubRepo: ""
 }
 
 export const metadata = {
@@ -21,7 +20,7 @@ export const metadata = {
 
 export default (props) => <ArticleLayout article={article} {...props} />
 
-# Implementing Custom Log Integrations with @brainstack/log
+## Introduction
 
 Building on our understanding of @brainstack/log basics, let's explore how to create custom logging integrations and implement advanced logging patterns for different use cases.
 

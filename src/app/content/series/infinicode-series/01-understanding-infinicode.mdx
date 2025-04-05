@@ -1,0 +1,199 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  title: "Understanding InfiniCode: A Next-Generation IDE",
+  description: "Explore InfiniCode, an innovative IDE that bridges the gap between visual and code editing through real-time WYSIWYG capabilities.",
+  author: "Martin Ouimet",
+  date: "2024-03-31",
+  order: 1,
+  seriesSlug: "infinicode-series",
+  slug: "understanding-infinicode",
+  tags: ["IDE", "WYSIWYG", "TypeScript", "React", "VS Code", "WebSocket"],
+  category: "Development Tools",
+  githubRepo: ""
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+## Introduction
+
+InfiniCode represents a significant evolution in integrated development environments by seamlessly combining visual editing capabilities with traditional code editing. This innovative approach allows developers to work with both paradigms simultaneously, maintaining code quality while accelerating development.
+
+<video 
+  className="rounded-2xl shadow-lg"
+  controls
+  autoPlay
+  loop
+  muted
+  playsInline
+  src="/infinicode-demo.mp4"
+>
+  <track kind="captions" />
+</video>
+
+## What is InfiniCode?
+
+InfiniCode is a modern IDE that offers:
+- Real-time WYSIWYG editing with code synchronization
+- VS Code integration for familiar developer experience
+- Modular architecture for extensibility
+- Type-safe development with TypeScript
+- Hot-reloading capabilities for instant feedback
+
+## Core Architecture
+
+InfiniCode is built as a monorepo using Lerna, with a carefully structured package hierarchy:
+
+```typescript
+@infinisoft/code/
+├── packages/
+│   ├── components/      // React component library
+│   ├── configprovider/ // Configuration management
+│   ├── ide/            // Core IDE functionality
+│   ├── ipc/            // Inter-Process Communication
+│   ├── logprovider/    // Logging system
+│   ├── server/         // Development server
+│   └── transform/      // Code transformation utilities
+```
+
+### Build System
+
+The project uses a sophisticated webpack configuration that supports:
+- Multiple output targets (Node.js and Web)
+- TypeScript compilation with type checking
+- CSS modules for styling
+- Hot Module Replacement (HMR)
+- Source maps for debugging
+- Polyfills for cross-platform compatibility
+
+## Key Features
+
+### 1. Live Preview System
+
+The live preview system is one of InfiniCode's standout features:
+
+```typescript
+// Example of live preview integration
+interface LivePreviewProps {
+  sourceCode: string;
+  onUpdate: (newCode: string) => void;
+}
+
+function LivePreview({ sourceCode, onUpdate }: LivePreviewProps) {
+  // Real-time code transformation and rendering
+  // Changes are synchronized back to source files
+}
+```
+
+### 2. VS Code Integration
+
+InfiniCode integrates deeply with VS Code:
+
+```typescript
+// VS Code extension activation
+export function activate(context: vscode.ExtensionContext) {
+  // Register custom editor provider
+  // Set up WebSocket communication
+  // Initialize IDE components
+}
+```
+
+### 3. IPC System
+
+The Inter-Process Communication system enables secure communication:
+
+```typescript
+interface IPCMessage {
+  type: string;
+  payload: any;
+  source: 'ide' | 'extension';
+}
+
+// Bidirectional communication between VS Code and preview
+class IPCProvider {
+  send(message: IPCMessage): void;
+  onMessage(handler: (message: IPCMessage) => void): void;
+}
+```
+
+## Technical Foundation
+
+### Development Workflow
+
+InfiniCode supports various development workflows:
+
+```bash
+# Development build with watch mode
+npm run watch-web
+
+# Production build
+npm run build:prod
+
+# Type generation
+npm run build:types
+```
+
+### Multi-Target Output
+
+The system compiles for different environments:
+- Node.js for VS Code extension
+- Web for browser-based IDE
+- ESM and CommonJS module formats
+
+## Getting Started
+
+To start using InfiniCode:
+
+1. Install the VS Code extension
+2. Open a supported project
+3. Launch the InfiniCode IDE view
+4. Begin editing visually or through code
+
+## Use Cases
+
+InfiniCode is particularly useful for:
+
+1. **Rapid Prototyping**
+   - Visual component manipulation
+   - Instant feedback
+   - Code generation
+
+2. **Component Development**
+   - Real-time style adjustments
+   - Layout experimentation
+   - Property tweaking
+
+3. **Learning and Teaching**
+   - Visual representation of code changes
+   - Immediate feedback loop
+   - Code-visual relationship understanding
+
+## Best Practices
+
+When working with InfiniCode:
+
+1. **Code Organization**
+   - Keep components focused and single-purpose
+   - Use TypeScript for type safety
+   - Follow the established project structure
+
+2. **Visual Editing**
+   - Make small, incremental changes
+   - Verify generated code quality
+   - Use code review for visual changes
+
+3. **Performance**
+   - Optimize component updates
+   - Use memoization where appropriate
+   - Monitor preview performance
+
+## Conclusion
+
+InfiniCode represents a significant step forward in IDE technology, bridging the gap between visual and code editing while maintaining code quality and developer productivity.
+
+In the next article, we'll explore InfiniCode's advanced features and implementation patterns in detail.

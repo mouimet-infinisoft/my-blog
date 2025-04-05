@@ -1,17 +1,16 @@
 import { ArticleLayout } from '@/components/ArticleLayout'
 
 export const article = {
-  author: 'Martin Ouimet',
-  date: '2024-03-22',
-  title: 'Testing and Monitoring with @brainstack/log',
-  description: 'Learn effective strategies for testing logging implementations and monitoring applications using @brainstack/log.',
-  series: {
-    name: '@brainstack/log Series',
-    order: 3,
-    description: 'Master application logging with @brainstack/log through a series of in-depth articles covering core concepts, integrations, best practices, and real-world applications.'
-  },
-  tags: ['logging', 'testing', 'monitoring', 'brainstack', 'log', 'typescript'],
-  category: 'Testing'
+  title: "Testing and Monitoring with @brainstack/log",
+  description: "Learn effective strategies for testing logging implementations and monitoring applications using @brainstack/log.",
+  author: "Martin Ouimet",
+  date: "2024-03-22",
+  order: 3,
+  seriesSlug: "brainstack-log-series",
+  slug: "testing-and-monitoring-brainstack-log",
+  tags: ["logging", "testing", "monitoring", "brainstack", "log", "typescript"],
+  category: "Testing",
+  githubRepo: ""
 }
 
 export const metadata = {
@@ -21,7 +20,7 @@ export const metadata = {
 
 export default (props) => <ArticleLayout article={article} {...props} />
 
-# Testing and Monitoring with @brainstack/log
+## Introduction
 
 Testing logging implementations and monitoring log output are crucial aspects of maintaining reliable applications. This article explores strategies for testing logging code and implementing effective monitoring using @brainstack/log.
 

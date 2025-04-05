@@ -1,0 +1,211 @@
+/* Article Content Styles */
+
+.article-content {
+  margin-top: 2rem;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.article-content h5,
+.article-content h6 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.article-content h1 {
+  font-size: 2.25em;
+}
+
+.article-content h2 {
+  font-size: 1.5em;
+}
+
+.article-content h3 {
+  font-size: 1.25em;
+}
+
+.article-content p {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  line-height: 1.7;
+}
+
+.article-content ul,
+.article-content ol {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 1.5em;
+}
+
+.article-content li {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.article-content code {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+.dark .article-content code {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.article-content pre {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding: 1em;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.dark .article-content pre {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.article-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.article-content blockquote {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 1em;
+  border-left: 4px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.dark .article-content blockquote {
+  border-left-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.article-content a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.article-content a:hover {
+  text-decoration: underline;
+}
+
+.dark .article-content a {
+  color: #3b82f6;
+}
+
+/* Hide duplicate article headers */
+.article-content > h1:first-of-type,
+.article-content > div > h1:first-of-type,
+.article-content h1:first-of-type {
+  display: none !important;
+}
+
+/* Improve content width */
+.article-layout-content {
+  max-width: 100% !important;
+}
+
+/* Hide duplicate article metadata */
+.article-content > div > div:first-of-type {
+  display: none !important;
+}
+
+/* Improve content width */
+.article-layout-content {
+  max-width: 100% !important;
+}
+
+/* Improve code block styling */
+.article-content pre {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+  overflow-x: auto;
+}
+
+.dark .article-content pre {
+  background-color: #1e1e1e;
+}
+
+/* Improve list styling */
+.article-content ul,
+.article-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.article-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Improve link styling */
+.article-content a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.article-content a:hover {
+  text-decoration: underline;
+}
+
+.dark .article-content a {
+  color: #3b82f6;
+}
+
+/* Improve blockquote styling */
+.article-content blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.dark .article-content blockquote {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+/* Improve table styling */
+.article-content table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+}
+
+.article-content th,
+.article-content td {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.dark .article-content th,
+.dark .article-content td {
+  border-color: #4b5563;
+}
+
+.article-content th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.dark .article-content th {
+  background-color: #1e1e1e;
+}
+
+/* Improve image styling */
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+}

@@ -1,0 +1,138 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  title: "Getting Started with @brainstack/inject: A Dependency Injection Tutorial",
+  description: "Learn how to use @brainstack/inject, a powerful dependency injection library, to manage dependencies in your JavaScript and TypeScript projects.",
+  author: "Martin Ouimet",
+  date: "2024-03-10",
+  order: 1,
+  seriesSlug: "brainstack-inject-series",
+  slug: "brainstack-inject-tutorial",
+  tags: ["dependency-injection", "brainstack", "inject", "typescript"],
+  category: "Tutorials",
+  githubRepo: ""
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+## Introduction
+
+`@brainstack/inject` is a lightweight yet robust dependency injection (DI) library designed for JavaScript and TypeScript projects. It simplifies dependency management, promotes code reusability, and enhances testability. This tutorial will guide you through the basics of using `@brainstack/inject` in your projects.
+
+## Installation
+
+First, install the `@brainstack/inject` package using npm:
+
+```bash
+npm install @brainstack/inject
+```
+
+## Core Concepts
+
+Before diving into the code, let's understand some core concepts:
+
+- **Services:** Reusable components or functions that provide specific functionalities within your application.
+- **Dependency Injection:** A design pattern where dependencies are provided to a class instead of being created within the class itself.
+- **Container:** Manages the registration and resolution of dependencies.
+- **Service Identifiers:** Used to identify and retrieve services from the container (class constructors, strings, or Symbols).
+- **Service Scopes:** Define the lifetime of a service instance (singleton, transient, or custom scope).
+
+## Basic Dependency Injection
+
+Let's start with a simple example of dependency injection using `@brainstack/inject`.
+
+### Step 1: Define a Service
+
+Create a service class that provides some functionality. For example, a `DatabaseService` that fetches data from a database:
+
+```typescript
+import { Service } from '@brainstack/inject';
+
+@Service()
+class DatabaseService {
+  getData() {
+    return 'Data from database';
+  }
+}
+```
+
+### Step 2: Define a Class that Depends on the Service
+
+Create a class that depends on the `DatabaseService`. Use the `@Inject` decorator to inject the service into the class:
+
+```typescript
+import { Service, Inject } from '@brainstack/inject';
+
+@Service()
+class MyClass {
+  constructor(@Inject private dbService: DatabaseService) {}
+
+  doSomething() {
+    const data = this.dbService.getData();
+    console.log(data); // Output: 'Data from database'
+  }
+}
+```
+
+### Step 3: Create a Container and Resolve Dependencies
+
+Create a container, register the services, and resolve the dependencies:
+
+```typescript
+import { Container } from '@brainstack/inject';
+
+const container = new Container();
+const myInstance = container.getInstance(MyClass);
+myInstance.doSomething();
+```
+
+## Service Scopes
+
+`@brainstack/inject` supports various service lifetimes, including singleton, transient, and scoped services.
+
+### Singleton Services
+
+Singleton services are created once and shared throughout the application:
+
+```typescript
+import { SingletonService } from '@brainstack/inject';
+
+@SingletonService
+class LoggerService {
+  log(message: string) {
+    console.log(message);
+  }
+}
+```
+
+### Transient Services
+
+Transient services create a new instance each time they are injected:
+
+```typescript
+container.register('myTransientService', () => new MyTransientService(), true); // true for transient
+const transientServiceFactory = container.get('myTransientService');
+const transientInstance1 = transientServiceFactory(); // New instance
+const transientInstance2 = transientServiceFactory(); // Another new instance
+```
+
+### Scoped Services
+
+Scoped services are managed within a specific container:
+
+```typescript
+import { asScopedService } from '@brainstack/inject';
+
+const scopedContainer = new Container();
+const ScopedService = asScopedService(MyService, scopedContainer);
+const scopedInstance = scopedContainer.getInstance(ScopedService);
+```
+
+## Conclusion
+
+`@brainstack/inject` is a powerful and flexible dependency injection library that simplifies dependency management in JavaScript and TypeScript projects. By following this tutorial, you should now have a good understanding of how to use `@brainstack/inject` to manage dependencies in your applications. Happy coding!

@@ -5,12 +5,10 @@ export interface Article {
   date: string
   tags?: string[]
   category?: string
-  series?: {
-    name: string
-    order: number
-    coverImage?: string
-    description?: string
-  }
+  order?: number
+  seriesSlug?: string
+  githubRepo?: string
+  isStandalone?: boolean
 }
 
 export interface ArticleWithSlug extends Article {
@@ -20,49 +18,15 @@ export interface ArticleWithSlug extends Article {
 export interface Series {
   name: string
   description: string
+  slug: string
   articles: ArticleWithSlug[]
   coverImage?: string
   category?: string
-  author?: string
-  date?: string
-}
-
-export interface BlogSeries {
-  slug: string
-  title: string
-  description: string
-  coverImage?: string
-  category: string
-  articles: ArticleWithSlug[]
-  totalArticles: number
-  author: string
-  date: string
+  githubRepo?: string
 }
 
 export interface ArticleNavigation {
-  article: ArticleType
-  nextArticle?: ArticleType
-  prevArticle?: ArticleType
-}
-
-export interface ArticleType {
-  title: string
-  description: string
-  author: string
-  date: string
-  tags?: string[]
-  category?: string
-  series?: {
-    name: string
-    order: number
-    description?: string
-  }
-  slug: string
-}
-
-export interface SeriesType {
-  name: string
-  description: string
-  articles: ArticleType[]
-  coverImage?: string
+  article: ArticleWithSlug
+  nextArticle?: ArticleWithSlug
+  prevArticle?: ArticleWithSlug
 }

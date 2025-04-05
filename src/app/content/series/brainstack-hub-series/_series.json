@@ -1,0 +1,8 @@
+{
+  "name": "@brainstack/hub Series",
+  "description": "Master event-driven architecture with @brainstack/hub through a series of in-depth articles covering core concepts, advanced patterns, testing strategies, and real-world applications.",
+  "slug": "brainstack-hub-series",
+  "coverImage": "/images/event_driven_series.png",
+  "category": "Architecture",
+  "githubRepo": ""
+}

@@ -9,7 +9,6 @@ import { Container } from '@/components/Container'
 import { Prose } from '@/components/Prose'
 import { type ArticleWithSlug } from '@/lib/types'
 import { formatDate } from '@/lib/formatDate'
-import { SeriesContext } from '@/components/SeriesContext'
 
 function ArrowLeftIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -43,11 +42,15 @@ interface SeriesNavProps {
 }
 
 function SeriesNav({ prevArticle, nextArticle }: SeriesNavProps) {
+  if (!prevArticle && !nextArticle) return null;
+
   return (
     <div className="mt-8 flex justify-between border-t border-zinc-100 pt-8 dark:border-zinc-700/40">
       {prevArticle ? (
         <Link
-          href={`/articles/${prevArticle.slug}`}
+          href={prevArticle.seriesSlug
+            ? `/series/${prevArticle.seriesSlug}/${prevArticle.slug}`
+            : `/articles/${prevArticle.slug}`}
           className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
         >
           <ArrowLeftIcon className="h-4 w-4" />
@@ -58,7 +61,9 @@ function SeriesNav({ prevArticle, nextArticle }: SeriesNavProps) {
       )}
       {nextArticle && (
         <Link
-          href={`/articles/${nextArticle.slug}`}
+          href={nextArticle.seriesSlug
+            ? `/series/${nextArticle.seriesSlug}/${nextArticle.slug}`
+            : `/articles/${nextArticle.slug}`}
           className="flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-600 dark:text-zinc-400 dark:hover:text-zinc-300"
         >
           {nextArticle.title}
@@ -70,12 +75,14 @@ function SeriesNav({ prevArticle, nextArticle }: SeriesNavProps) {
 }
 
 function SeriesInfo({ article }: { article: ArticleWithSlug }) {
-  if (!article.series) return null
+  if (!article.seriesSlug) return null
 
   return (
     <div className="mt-4 rounded-lg bg-zinc-100 px-4 py-3 dark:bg-zinc-800/90">
       <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-        Part {article.series.order} of the {article.series.name}
+        <Link href={`/series/${article.seriesSlug}`} className="hover:text-teal-500">
+          Part {article.order} of the {article.seriesSlug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} series
+        </Link>
       </p>
     </div>
   )
@@ -126,14 +133,10 @@ export function ArticleLayout({
   let router = useRouter()
   let { previousPathname } = useContext(AppContext)
 
-  const series = article.series ? 
-    { name: article.series.name, description: article.series.description || '', articles: [] } : 
-    null
-
   return (
     <Container className="mt-16 lg:mt-32">
       <div className="xl:relative">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-3xl">
           {previousPathname && (
             <button
               type="button"
@@ -152,8 +155,7 @@ export function ArticleLayout({
               <ArticleMeta article={article} />
               <SeriesInfo article={article} />
             </header>
-            {series && <SeriesContext series={series} currentSlug={article.slug} />}
-            <Prose className="mt-8" data-mdx-content>
+            <Prose className="mt-8 article-layout-content" data-mdx-content>
               {children}
             </Prose>
           </article>
