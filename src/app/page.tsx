@@ -20,10 +20,11 @@ import image2 from '@/images/photos/image-2.jpg'
 import image3 from '@/images/photos/image-3.jpg'
 import image4 from '@/images/photos/image-4.jpg'
 import image5 from '@/images/photos/image-5.jpg'
-import { type ArticleWithSlug, getAllArticles, getArticlesBySeries } from '@/lib/articles'
+// import { type ArticleWithSlug, getAllArticles, getArticlesBySeries } from '@/lib/articles'
 import { formatDate } from '@/lib/formatDate'
-import { Series } from '@/lib/types'
+import { ArticleWithSlug, Series } from '@/lib/types'
 import { Calendar, ChevronRight, BookOpen } from '@/components/ui/icons'
+import { getAllArticles, getAllSeries, getArticlesBySeries } from '@/lib/content'
 
 function MailIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -268,7 +269,7 @@ function Photos() {
 }
 
 function SeriesCard({ series }: { series: Series }) {
-  const seriesSlug = series.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+  const seriesSlug = series.slug
   return (
     <Card as="article">
       <div className="flex items-center gap-2">
@@ -294,7 +295,7 @@ function SeriesCard({ series }: { series: Series }) {
 export default async function Home() {
   const [articles, series] = await Promise.all([
     getAllArticles(),
-    getArticlesBySeries(),
+    getAllSeries(),
   ])
 
   return (
