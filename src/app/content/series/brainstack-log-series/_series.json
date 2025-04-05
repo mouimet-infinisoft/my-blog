@@ -4,5 +4,11 @@
   "slug": "brainstack-log-series",
   "coverImage": "/images/logger_series.png",
   "category": "Logging",
-  "githubRepo": ""
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2025-04-05"
+  }
 }

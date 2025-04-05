@@ -4,5 +4,11 @@
   "slug": "brainstack-nlsh-series",
   "coverImage": "/images/nlsh_series.png",
   "category": "CLI Tools",
-  "githubRepo": ""
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2025-04-05"
+  }
 }

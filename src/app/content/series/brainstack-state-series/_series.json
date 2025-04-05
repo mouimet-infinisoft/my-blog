@@ -4,5 +4,11 @@
   "slug": "brainstack-state-series",
   "coverImage": "/images/state_series.png",
   "category": "State Management",
-  "githubRepo": ""
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "releaseSchedule": {
+    "frequency": "weekly",
+    "startDate": "2025-04-05"
+  }
 }

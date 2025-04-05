@@ -1,3 +1,10 @@
+export type ArticleStatus = 'draft' | 'ready' | 'scheduled' | 'published' | 'featured';
+
+export interface ReleaseSchedule {
+  frequency: 'weekly' | 'biweekly' | 'monthly';
+  startDate: string;
+}
+
 export interface Article {
   title: string
   description: string
@@ -9,6 +16,8 @@ export interface Article {
   seriesSlug?: string
   githubRepo?: string
   isStandalone?: boolean
+  status?: ArticleStatus
+  publishDate?: string
 }
 
 export interface ArticleWithSlug extends Article {
@@ -23,6 +32,9 @@ export interface Series {
   coverImage?: string
   category?: string
   githubRepo?: string
+  status?: ArticleStatus
+  publishDate?: string
+  releaseSchedule?: ReleaseSchedule
 }
 
 export interface ArticleNavigation {

@@ -10,7 +10,9 @@ export const article = {
   slug: "testing-event-driven-systems",
   tags: ["testing", "event-driven", "brainstack", "hub", "typescript", "unit-testing"],
   category: "Testing",
-  githubRepo: ""
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-04-05",
 }
 
 export const metadata = {
@@ -133,7 +135,7 @@ class EventSequenceValidator {
   async validateSequence(): Promise<boolean> {
     // Wait for all events to be processed
     await new Promise(resolve => setTimeout(resolve, 0));
-    
+
     if (this.actualSequence.length !== this.expectedSequence.length) {
       return false;
     }
