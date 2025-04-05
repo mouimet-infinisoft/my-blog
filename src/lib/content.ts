@@ -8,7 +8,7 @@ export async function getAllSeries() {
   
   return Promise.all(seriesDirs.map(async (dir) => {
     const seriesJsonPath = path.join(seriesPath, dir, '_series.json');
-    const seriesData = JSON.parse(fs.readFileSync(seriesJsonPath, 'utf8'));
+    const seriesData = JSON.parse(fs.readFileSync(seriesJsonPath, 'utf8')) as Series;
     
     // Get articles in this series
     const articles = await getArticlesBySeries(dir);
@@ -93,7 +93,7 @@ export async function getArticleBySlug(slug: string, seriesSlug?: string) {
   const series = await getAllSeries();
   
   for (const s of series) {
-    const article = s.articles.find(a => a.slug === slug);
+    const article = s.articles.find((a: ArticleWithSlug) => a.slug === slug);
     if (article) {
       const articleIndex = s.articles.findIndex(a => a.slug === slug);
       
@@ -123,7 +123,7 @@ export async function getAllTags() {
   const tags = new Set<string>();
   
   articles.forEach(article => {
-    article.tags?.forEach(tag => tags.add(tag));
+    article.tags?.forEach((tag:string) => tags.add(tag));
   });
   
   return Array.from(tags).sort();
