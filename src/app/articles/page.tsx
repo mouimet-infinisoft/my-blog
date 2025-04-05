@@ -1,6 +1,6 @@
 import { Card } from '@/components/Card'
 import { SimpleLayout } from '@/components/SimpleLayout'
-import { getAllArticles, getStandaloneArticles } from '@/lib/content'
+import { getStandaloneArticles } from '@/lib/content'
 import { formatDate } from '@/lib/formatDate'
 import { Button } from '@/components/Button'
 import { MotionCard } from '@/components/ui/MotionCard'
@@ -58,6 +58,7 @@ export const metadata = {
 }
 
 export default async function ArticlesIndex() {
+  // In App Router, we can use the preview mode directly
   const standaloneArticles = await getStandaloneArticles()
 
   return (
