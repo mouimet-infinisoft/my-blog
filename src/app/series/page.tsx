@@ -65,6 +65,7 @@ export const metadata: Metadata = {
 }
 
 export default async function SeriesIndex() {
+  // In App Router, we can use the preview mode directly
   const series = await getAllSeries()
 
   return (
