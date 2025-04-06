@@ -2,7 +2,6 @@
 
 import { useState, FormEvent } from 'react';
 import { ArticleStatus } from '@/lib/types';
-import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 import { MDXEditor } from './MDXEditor';
 
@@ -15,10 +14,6 @@ interface NewArticleFormProps {
     publishDate?: string;
     category?: string;
     tags?: string[];
-    shareOnLinkedin?: boolean;
-    shareOnTwitter?: boolean;
-    shareOnFacebook?: boolean;
-    shareOnDevto?: boolean;
   }) => Promise<void>;
 }
 
@@ -32,10 +27,6 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
     publishDate: '',
     category: '',
     tags: '',
-    shareOnLinkedin: false,
-    shareOnTwitter: false,
-    shareOnFacebook: false,
-    shareOnDevto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,16 +44,6 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
     setFormData(prev => ({
       ...prev,
       content,
-    }));
-  };
-
-  const handleSocialMediaChange = (platform: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      [platform === 'linkedin' ? 'shareOnLinkedin' :
-       platform === 'twitter' ? 'shareOnTwitter' :
-       platform === 'facebook' ? 'shareOnFacebook' :
-       'shareOnDevto']: checked,
     }));
   };
 
@@ -98,10 +79,6 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         publishDate: formData.publishDate || undefined,
         tags,
         category: formData.category || undefined,
-        shareOnLinkedin: formData.shareOnLinkedin,
-        shareOnTwitter: formData.shareOnTwitter,
-        shareOnFacebook: formData.shareOnFacebook,
-        shareOnDevto: formData.shareOnDevto,
       };
 
       await onSave(dataToSave);
@@ -116,10 +93,6 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         publishDate: '',
         category: '',
         tags: '',
-        shareOnLinkedin: false,
-        shareOnTwitter: false,
-        shareOnFacebook: false,
-        shareOnDevto: false,
       });
 
       router.refresh(); // Refresh the page to show updated data
@@ -255,22 +228,6 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
             Comma-separated list of tags
           </p>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          Share on Social Media
-        </label>
-        <SocialMediaSelector
-          linkedin={formData.shareOnLinkedin}
-          twitter={formData.shareOnTwitter}
-          facebook={formData.shareOnFacebook}
-          devto={formData.shareOnDevto}
-          onChange={handleSocialMediaChange}
-        />
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Select platforms where this content should be shared when published
-        </p>
       </div>
 
       <div className="flex justify-end">

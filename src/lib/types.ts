@@ -18,10 +18,6 @@ export interface Article {
   isStandalone?: boolean
   status?: ArticleStatus
   publishDate?: string
-  shareOnLinkedin?: boolean
-  shareOnTwitter?: boolean
-  shareOnFacebook?: boolean
-  shareOnDevto?: boolean
 }
 
 export interface ArticleWithSlug extends Article {

@@ -77,7 +77,6 @@ export function StatusSection({ title, articles, series }: StatusSectionProps) {
                   <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Title</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Series</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Publish Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Social</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -106,15 +105,6 @@ export function StatusSection({ title, articles, series }: StatusSectionProps) {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {article.publishDate || 'Not set'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <SocialMediaIndicator
-                        shareOnLinkedin={article.shareOnLinkedin}
-                        shareOnTwitter={article.shareOnTwitter}
-                        shareOnFacebook={article.shareOnFacebook}
-                        shareOnDevto={article.shareOnDevto}
-                        size="sm"
-                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <Link
