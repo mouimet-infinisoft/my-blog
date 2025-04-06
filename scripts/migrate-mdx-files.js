@@ -111,7 +111,7 @@ function extractMarkdownContent(content) {
   let markdownContent = contentMatch[1];
   
   // Remove the closing ArticleLayout tag if present
-  markdownContent = markdownContent.replace(/<\\/ArticleLayout>\\s*$/, '');
+  markdownContent = markdownContent.replace(/<\/ArticleLayout>\s*$/, '');
   
   return markdownContent.trim();
 }
@@ -122,7 +122,7 @@ function extractMarkdownContent(content) {
  */
 async function processStandaloneArticle(filePath) {
   const fileName = path.basename(filePath);
-  const slug = fileName.replace(/\\.mdx$/, '');
+  const slug = fileName.replace(/\.mdx$/, '');
   
   console.log(`Processing standalone article: ${slug}`);
   
@@ -159,10 +159,10 @@ async function processStandaloneArticle(filePath) {
  */
 async function processSeriesArticle(seriesSlug, filePath) {
   const fileName = path.basename(filePath);
-  const fileNameWithoutExt = fileName.replace(/\\.mdx$/, '');
+  const fileNameWithoutExt = fileName.replace(/\.mdx$/, '');
   
   // Extract the slug from the filename (remove order prefix if present)
-  const slug = fileNameWithoutExt.replace(/^\\d+-/, '');
+  const slug = fileNameWithoutExt.replace(/^\d+-/, '');
   
   console.log(`Processing series article: ${seriesSlug}/${fileNameWithoutExt}`);
   
