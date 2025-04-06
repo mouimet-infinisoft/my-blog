@@ -1,0 +1,422 @@
+## Introduction
+
+In this final article of our series, we'll explore testing strategies for state management and patterns for persisting state across sessions.
+
+## Testing Strategies
+
+### Unit Testing State Logic
+
+Test state mutations and selectors:
+
+```typescript
+import { createState } from '@brainstack/state';
+
+interface CounterState {
+  value: number;
+  history: number[];
+}
+
+const createCounterState = () => createState<CounterState>({
+  value: 0,
+  history: []
+});
+
+describe('Counter State', () => {
+  let counterState;
+
+  beforeEach(() => {
+    counterState = createCounterState();
+  });
+
+  test('initial state is correct', () => {
+    expect(counterState.getState()).toEqual({
+      value: 0,
+      history: []
+    });
+  });
+
+  test('increment updates value and history', () => {
+    counterState.mutate(state => ({
+      ...state,
+      value: state.value + 1,
+      history: [...state.history, state.value + 1]
+    }));
+
+    expect(counterState.getState()).toEqual({
+      value: 1,
+      history: [1]
+    });
+  });
+
+  test('selector returns correct value', () => {
+    counterState.mutate(state => ({
+      ...state,
+      value: 42
+    }));
+
+    const value = counterState.getState(state => state.value);
+    expect(value).toBe(42);
+  });
+});
+```
+
+### Testing State Actions
+
+Test action creators and their effects on state:
+
+```typescript
+interface TodoState {
+  items: Array<{
+    id: string;
+    text: string;
+    completed: boolean;
+  }>;
+}
+
+const createTodoState = () => {
+  const state = createState<TodoState>({ items: [] });
+
+  return {
+    state,
+    actions: {
+      addTodo: (text: string) => {
+        state.mutate(current => ({
+          ...current,
+          items: [
+            ...current.items,
+            { id: 'test-id', text, completed: false }
+          ]
+        }));
+      },
+      toggleTodo: (id: string) => {
+        state.mutate(current => ({
+          ...current,
+          items: current.items.map(item =>
+            item.id === id
+              ? { ...item, completed: !item.completed }
+              : item
+          )
+        }));
+      }
+    }
+  };
+};
+
+describe('Todo State Actions', () => {
+  let todoState;
+  let actions;
+
+  beforeEach(() => {
+    const instance = createTodoState();
+    todoState = instance.state;
+    actions = instance.actions;
+  });
+
+  test('addTodo creates new todo item', () => {
+    actions.addTodo('Test todo');
+
+    const state = todoState.getState();
+    expect(state.items).toHaveLength(1);
+    expect(state.items[0]).toEqual({
+      id: 'test-id',
+      text: 'Test todo',
+      completed: false
+    });
+  });
+
+  test('toggleTodo changes completion status', () => {
+    actions.addTodo('Test todo');
+    actions.toggleTodo('test-id');
+
+    const state = todoState.getState();
+    expect(state.items[0].completed).toBe(true);
+  });
+});
+```
+
+### Testing Async State Changes
+
+Test asynchronous state mutations:
+
+```typescript
+interface AsyncState {
+  loading: boolean;
+  data: any;
+  error: string | null;
+}
+
+const createAsyncState = () => {
+  const state = createState<AsyncState>({
+    loading: false,
+    data: null,
+    error: null
+  });
+
+  const actions = {
+    fetchData: async () => {
+      state.mutate(s => ({ ...s, loading: true }));
+
+      try {
+        const data = await fetchSomeData();
+        state.mutate(s => ({
+          ...s,
+          loading: false,
+          data,
+          error: null
+        }));
+      } catch (error) {
+        state.mutate(s => ({
+          ...s,
+          loading: false,
+          error: error.message
+        }));
+      }
+    }
+  };
+
+  return { state, actions };
+};
+
+describe('Async State', () => {
+  let asyncState;
+  let actions;
+
+  beforeEach(() => {
+    const instance = createAsyncState();
+    asyncState = instance.state;
+    actions = instance.actions;
+  });
+
+  test('handles successful data fetch', async () => {
+    await actions.fetchData();
+
+    const state = asyncState.getState();
+    expect(state.loading).toBe(false);
+    expect(state.data).toBeDefined();
+    expect(state.error).toBeNull();
+  });
+
+  test('handles fetch error', async () => {
+    // Mock fetch failure
+    fetchSomeData.mockRejectedValue(new Error('Fetch failed'));
+
+    await actions.fetchData();
+
+    const state = asyncState.getState();
+    expect(state.loading).toBe(false);
+    expect(state.data).toBeNull();
+    expect(state.error).toBe('Fetch failed');
+  });
+});
+```
+
+## State Persistence Patterns
+
+### Local Storage Persistence
+
+Implement state persistence to localStorage:
+
+```typescript
+interface PersistOptions {
+  key: string;
+  serialize?: (state: any) => string;
+  deserialize?: (data: string) => any;
+}
+
+function createPersistentState<T>(
+  initialState: T,
+  options: PersistOptions
+) {
+  const {
+    key,
+    serialize = JSON.stringify,
+    deserialize = JSON.parse
+  } = options;
+
+  // Load persisted state if it exists
+  const persistedData = localStorage.getItem(key);
+  const persistedState = persistedData
+    ? deserialize(persistedData)
+    : initialState;
+
+  const state = createState<T>(persistedState);
+  const originalMutate = state.mutate;
+
+  // Override mutate to persist changes
+  state.mutate = (mutator: (state: T) => T) => {
+    originalMutate(mutator);
+    const currentState = state.getState();
+    localStorage.setItem(key, serialize(currentState));
+  };
+
+  return state;
+}
+
+// Usage example
+interface AppState {
+  theme: 'light' | 'dark';
+  language: string;
+}
+
+const persistentState = createPersistentState<AppState>(
+  {
+    theme: 'light',
+    language: 'en'
+  },
+  { key: 'app-settings' }
+);
+```
+
+### Selective Persistence
+
+Persist only specific parts of the state:
+
+```typescript
+interface SelectivePersistOptions<T> {
+  key: string;
+  select: (state: T) => Partial<T>;
+  merge: (state: T, persisted: Partial<T>) => T;
+}
+
+function createSelectivePersistentState<T>(
+  initialState: T,
+  options: SelectivePersistOptions<T>
+) {
+  const { key, select, merge } = options;
+
+  // Load persisted state
+  const persistedData = localStorage.getItem(key);
+  const persistedPartial = persistedData
+    ? JSON.parse(persistedData)
+    : null;
+
+  // Merge initial state with persisted data
+  const mergedState = persistedPartial
+    ? merge(initialState, persistedPartial)
+    : initialState;
+
+  const state = createState<T>(mergedState);
+  const originalMutate = state.mutate;
+
+  // Override mutate to persist selected state
+  state.mutate = (mutator: (state: T) => T) => {
+    originalMutate(mutator);
+    const currentState = state.getState();
+    const selectedState = select(currentState);
+    localStorage.setItem(key, JSON.stringify(selectedState));
+  };
+
+  return state;
+}
+
+// Usage example
+interface UserState {
+  profile: {
+    id: string;
+    name: string;
+  };
+  preferences: {
+    theme: string;
+    notifications: boolean;
+  };
+  session: {
+    token: string;
+    expires: number;
+  };
+}
+
+const userState = createSelectivePersistentState<UserState>(
+  {
+    profile: { id: '', name: '' },
+    preferences: {
+      theme: 'light',
+      notifications: true
+    },
+    session: {
+      token: '',
+      expires: 0
+    }
+  },
+  {
+    key: 'user-state',
+    // Only persist preferences
+    select: state => ({
+      preferences: state.preferences
+    }),
+    merge: (state, persisted) => ({
+      ...state,
+      ...persisted
+    })
+  }
+);
+```
+
+### Asynchronous Persistence
+
+Implement state persistence with async storage:
+
+```typescript
+interface AsyncPersistOptions<T> {
+  key: string;
+  storage: {
+    getItem: (key: string) => Promise<string | null>;
+    setItem: (key: string, value: string) => Promise<void>;
+  };
+}
+
+async function createAsyncPersistentState<T>(
+  initialState: T,
+  options: AsyncPersistOptions<T>
+) {
+  const { key, storage } = options;
+
+  // Load persisted state
+  const persistedData = await storage.getItem(key);
+  const persistedState = persistedData
+    ? JSON.parse(persistedData)
+    : initialState;
+
+  const state = createState<T>(persistedState);
+  const originalMutate = state.mutate;
+
+  // Override mutate to persist asynchronously
+  state.mutate = (mutator: (state: T) => T) => {
+    originalMutate(mutator);
+    const currentState = state.getState();
+    storage.setItem(key, JSON.stringify(currentState));
+  };
+
+  return state;
+}
+
+// Usage with IndexedDB
+const indexedDBStorage = {
+  async getItem(key: string) {
+    const db = await openDatabase();
+    const tx = db.transaction('state', 'readonly');
+    const store = tx.objectStore('state');
+    const value = await store.get(key);
+    return value?.data || null;
+  },
+
+  async setItem(key: string, value: string) {
+    const db = await openDatabase();
+    const tx = db.transaction('state', 'readwrite');
+    const store = tx.objectStore('state');
+    await store.put({ key, data: value });
+    await tx.complete;
+  }
+};
+
+const persistentState = await createAsyncPersistentState(
+  initialState,
+  {
+    key: 'app-state',
+    storage: indexedDBStorage
+  }
+);
+```
+
+## Conclusion
+
+This concludes our series on @brainstack/state. We've covered everything from basic usage to advanced patterns, testing strategies, and state persistence. With these tools and patterns, you can build robust and maintainable state management solutions for your applications.

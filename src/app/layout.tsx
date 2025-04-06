@@ -1,6 +1,7 @@
 import { type Metadata } from 'next'
 import { Providers } from '@/app/providers'
 import { Layout } from '@/components/Layout'
+import { AdminMenu } from '@/components/AdminMenu'
 import { Inter, Lexend } from 'next/font/google'
 import '@/styles/tailwind.css'
 
@@ -41,6 +42,7 @@ export default function RootLayout({
         <Providers>
           <div className="flex w-full">
             <Layout>{children}</Layout>
+            <AdminMenu />
           </div>
         </Providers>
       </body>

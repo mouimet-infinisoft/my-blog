@@ -1,0 +1,387 @@
+## Introduction
+
+Building on our understanding of @brainstack/store basics, let's explore advanced patterns and real-world examples for managing complex application state.
+
+## Advanced Patterns
+
+### Domain-Driven Store Design
+
+Organize stores by domain:
+
+```typescript
+interface UserDomain {
+  profiles: Record<string, {
+    id: string;
+    name: string;
+    email: string;
+  }>;
+  preferences: Record<string, {
+    userId: string;
+    theme: string;
+    notifications: boolean;
+  }>;
+}
+
+interface ContentDomain {
+  articles: Array<{
+    id: string;
+    title: string;
+    content: string;
+    authorId: string;
+  }>;
+  comments: Array<{
+    id: string;
+    articleId: string;
+    userId: string;
+    content: string;
+  }>;
+}
+
+// Create domain-specific stores
+const userStore = createStore<UserDomain>({
+  initializer: {
+    profiles: {},
+    preferences: {}
+  }
+});
+
+const contentStore = createStore<ContentDomain>({
+  initializer: {
+    articles: [],
+    comments: []
+  }
+});
+
+// Create domain-specific CRUD operations
+const profilesCRUD = createCRUDObject('profiles');
+const preferencesCRUD = createCRUDObject('preferences');
+const articlesCRUD = createCRUDArray('articles');
+const commentsCRUD = createCRUDArray('comments');
+```
+
+### Store Composition
+
+Compose multiple stores into a unified interface:
+
+```typescript
+interface ComposedStore {
+  user: typeof userStore;
+  content: typeof contentStore;
+  actions: {
+    createArticle: (data: { title: string; content: string; authorId: string }) => string;
+    addComment: (data: { articleId: string; userId: string; content: string }) => string;
+    getUserArticles: (userId: string) => Array<{ id: string; title: string }>;
+  };
+}
+
+const composedStore: ComposedStore = {
+  user: userStore,
+  content: contentStore,
+  actions: {
+    createArticle: (data) => {
+      const id = crypto.randomUUID();
+      articlesCRUD.create({ id, ...data });
+      return id;
+    },
+    addComment: (data) => {
+      const id = crypto.randomUUID();
+      commentsCRUD.create({ id, ...data });
+      return id;
+    },
+    getUserArticles: (userId) => {
+      return articlesCRUD.list()
+        .filter(article => article.authorId === userId)
+        .map(({ id, title }) => ({ id, title }));
+    }
+  }
+};
+```
+
+### Event-Driven Updates
+
+Implement event-driven state updates:
+
+```typescript
+interface StoreEvents {
+  'user.created': { id: string; name: string };
+  'article.published': { id: string; title: string; authorId: string };
+  'comment.added': { id: string; articleId: string; userId: string };
+}
+
+function createEventDrivenStore() {
+  const store = createStore();
+  const hub = createEventHub();
+
+  // Handle user creation
+  hub.on('user.created', ({ id, name }) => {
+    store.mutate(state => ({
+      ...state,
+      profiles: {
+        ...state.profiles,
+        [id]: { id, name }
+      }
+    }));
+  });
+
+  // Handle article publication
+  hub.on('article.published', ({ id, title, authorId }) => {
+    store.mutate(state => ({
+      ...state,
+      articles: [
+        ...state.articles,
+        { id, title, authorId, publishedAt: new Date().toISOString() }
+      ]
+    }));
+  });
+
+  // Handle comment addition with notifications
+  hub.on('comment.added', async ({ id, articleId, userId }) => {
+    const article = articlesCRUD.read({ id: articleId });
+    const user = profilesCRUD.read({ id: userId });
+
+    if (article && user) {
+      // Add comment to store
+      store.mutate(state => ({
+        ...state,
+        comments: [
+          ...state.comments,
+          { id, articleId, userId, createdAt: new Date().toISOString() }
+        ]
+      }));
+
+      // Notify article author
+      hub.emit('notification.send', {
+        userId: article.authorId,
+        message: `${user.name} commented on your article "${article.title}"`
+      });
+    }
+  });
+
+  return { store, hub };
+}
+```
+
+## Real-World Examples
+
+### E-commerce Cart System
+
+```typescript
+interface CartItem {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+}
+
+interface CartStore {
+  items: Record<string, CartItem>;
+  total: number;
+  itemCount: number;
+}
+
+const cartStore = createStore<CartStore>({
+  initializer: {
+    items: {},
+    total: 0,
+    itemCount: 0
+  }
+});
+
+const cartActions = {
+  addItem: (product: { id: string; price: number }, quantity = 1) => {
+    cartStore.mutate(state => {
+      const existingItem = state.items[product.id];
+      const newQuantity = (existingItem?.quantity || 0) + quantity;
+      const items = {
+        ...state.items,
+        [product.id]: {
+          id: product.id,
+          productId: product.id,
+          quantity: newQuantity,
+          price: product.price
+        }
+      };
+
+      return {
+        ...state,
+        items,
+        total: Object.values(items).reduce((sum, item) => 
+          sum + item.price * item.quantity, 0),
+        itemCount: Object.values(items).reduce((sum, item) => 
+          sum + item.quantity, 0)
+      };
+    });
+  },
+
+  removeItem: (productId: string) => {
+    cartStore.mutate(state => {
+      const { [productId]: removed, ...items } = state.items;
+      return {
+        ...state,
+        items,
+        total: Object.values(items).reduce((sum, item) => 
+          sum + item.price * item.quantity, 0),
+        itemCount: Object.values(items).reduce((sum, item) => 
+          sum + item.quantity, 0)
+      };
+    });
+  },
+
+  updateQuantity: (productId: string, quantity: number) => {
+    cartStore.mutate(state => {
+      const items = {
+        ...state.items,
+        [productId]: {
+          ...state.items[productId],
+          quantity
+        }
+      };
+
+      return {
+        ...state,
+        items,
+        total: Object.values(items).reduce((sum, item) => 
+          sum + item.price * item.quantity, 0),
+        itemCount: Object.values(items).reduce((sum, item) => 
+          sum + item.quantity, 0)
+      };
+    });
+  }
+};
+```
+
+### Authentication System
+
+```typescript
+interface AuthState {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  } | null;
+  token: string | null;
+  loading: boolean;
+  error: string | null;
+}
+
+const authStore = createStore<AuthState>({
+  initializer: {
+    user: null,
+    token: null,
+    loading: false,
+    error: null
+  }
+});
+
+const authActions = {
+  login: async (email: string, password: string) => {
+    authStore.mutate(state => ({
+      ...state,
+      loading: true,
+      error: null
+    }));
+
+    try {
+      const response = await loginAPI(email, password);
+      authStore.mutate(state => ({
+        ...state,
+        loading: false,
+        user: response.user,
+        token: response.token
+      }));
+    } catch (error) {
+      authStore.mutate(state => ({
+        ...state,
+        loading: false,
+        error: error.message
+      }));
+    }
+  },
+
+  logout: () => {
+    authStore.mutate(state => ({
+      ...state,
+      user: null,
+      token: null
+    }));
+  },
+
+  updateProfile: async (updates: Partial<AuthState['user']>) => {
+    const currentUser = authStore.getState().user;
+    if (!currentUser) return;
+
+    authStore.mutate(state => ({
+      ...state,
+      loading: true
+    }));
+
+    try {
+      const updatedUser = await updateProfileAPI(updates);
+      authStore.mutate(state => ({
+        ...state,
+        loading: false,
+        user: {
+          ...state.user!,
+          ...updatedUser
+        }
+      }));
+    } catch (error) {
+      authStore.mutate(state => ({
+        ...state,
+        loading: false,
+        error: error.message
+      }));
+    }
+  }
+};
+```
+
+## Integration Patterns
+
+### Store Provider Pattern
+
+Create a store provider for React applications:
+
+```typescript
+const StoreContext = React.createContext<typeof composedStore | null>(null);
+
+function StoreProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <StoreContext.Provider value={composedStore}>
+      {children}
+    </StoreContext.Provider>
+  );
+}
+
+function useStore() {
+  const store = React.useContext(StoreContext);
+  if (!store) {
+    throw new Error('useStore must be used within StoreProvider');
+  }
+  return store;
+}
+
+// Usage in components
+function ArticleList() {
+  const store = useStore();
+  const articles = store.content.getState().articles;
+  const users = store.user.getState().profiles;
+
+  return (
+    <div>
+      {articles.map(article => (
+        <article key={article.id}>
+          <h2>{article.title}</h2>
+          <p>By: {users[article.authorId]?.name}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+```
+
+## Conclusion
+
+These advanced patterns demonstrate the flexibility and power of @brainstack/store in handling complex application state. The combination of domain-driven design, event handling, and CRUD operations makes it a robust solution for modern web applications.
+
+In the next article, we'll explore testing strategies and performance optimization patterns with @brainstack/store.

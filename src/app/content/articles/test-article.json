@@ -3,10 +3,14 @@
   "description": "This is a test article to verify our new approach of separating metadata from MDX content.",
   "author": "Martin Ouimet",
   "date": "2025-06-01",
-  "tags": ["test", "metadata", "json"],
+  "tags": [
+    "test",
+    "metadata",
+    "json"
+  ],
   "category": "Test",
   "githubRepo": "",
-  "status": "draft",
+  "status": "published",
   "publishDate": "2025-06-05",
   "isStandalone": true,
   "slug": "test-article"
