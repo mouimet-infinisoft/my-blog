@@ -71,11 +71,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     const fileContent = fs.readFileSync(filePath, 'utf8')
 
     // Extract the content part (after the default export)
-    const contentMatch = fileContent.match(/export default \(props\) => <ArticleLayout[^>]*>([\s\S]*)/)
+    const contentMatch = fileContent.match(/export default function MDXPage\(props\)[^}]*}([\s\S]*)/)
     let content = ''
 
     if (contentMatch) {
-      content = contentMatch[1].replace(/<\/ArticleLayout>\s*$/, '')
+      content = contentMatch[1]
     }
 
     return (

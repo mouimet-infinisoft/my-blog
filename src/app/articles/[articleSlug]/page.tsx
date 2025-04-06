@@ -52,7 +52,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     // Get the file path for the MDX file
     const filePath = path.join(
       process.cwd(),
-      'src/app/content/standalone',
+      'src/app/content/articles',
       `${params.articleSlug}.mdx`,
     )
 
@@ -61,12 +61,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
     // Extract the content part (after the default export)
     const contentMatch = fileContent.match(
-      /export default \(props\) => <ArticleLayout[^>]*>([\s\S]*)/,
+      /export default function MDXPage\(props\)[^}]*}([\s\S]*)/,
     )
     let content = ''
 
     if (contentMatch) {
-      content = contentMatch[1].replace(/<\/ArticleLayout>\s*$/, '')
+      content = contentMatch[1]
     }
 
     return (
