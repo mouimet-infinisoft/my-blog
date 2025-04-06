@@ -158,12 +158,14 @@ async function setupResendDns() {
     console.log(`Found ${currentRecords.length} existing DNS records.`);
 
     // Combine existing records with Resend records
-    // Remove any existing records that would conflict with our new Resend records
-    const resendHostNames = RESEND_DNS_RECORDS.map(r => r.HostName);
+    // Only remove records that would conflict with our new Resend records
+    // This preserves all other existing DNS records
+    const resendHostNamesAndTypes = RESEND_DNS_RECORDS.map(r => `${r.HostName}-${r.RecordType}`);
     const filteredCurrentRecords = currentRecords.filter(record =>
-      !resendHostNames.includes(record.HostName) ||
-      (record.HostName === resendHostNames && record.RecordType !== 'MX' && record.RecordType !== 'TXT')
+      !resendHostNamesAndTypes.includes(`${record.HostName}-${record.RecordType}`)
     );
+
+    console.log(`Preserving ${filteredCurrentRecords.length} existing DNS records.`);
 
     // Combine filtered current records with new Resend records
     const allRecords = [...filteredCurrentRecords, ...RESEND_DNS_RECORDS];
