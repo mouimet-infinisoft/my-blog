@@ -1,0 +1,38 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  title: "Test Newsletter Article",
+  description: "This is a test article to verify the newsletter sender functionality",
+  author: "Martin Ouimet",
+  date: new Date().toISOString().split('T')[0], // Today's date
+  slug: "test-newsletter-article",
+  tags: ["test", "newsletter"],
+  category: "Testing",
+  status: "published",
+  publishDate: new Date().toISOString().split('T')[0] // Today's date
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Test Newsletter Article
+
+This is a test article created to verify that the newsletter sender functionality works correctly.
+
+## Purpose
+
+The purpose of this article is to:
+
+1. Test the automated newsletter system
+2. Verify that the cron job correctly identifies newly published content
+3. Ensure that subscribers receive notifications about new content
+
+This article should be automatically detected by the newsletter sender because it has:
+- Today's date as the publication date
+- "published" status
+
+If you're reading this in an email, the newsletter system is working correctly!

@@ -25,6 +25,7 @@ import { formatDate } from '@/lib/formatDate'
 import { ArticleWithSlug, Series } from '@/lib/types'
 import { Calendar, ChevronRight, BookOpen } from '@/components/ui/icons'
 import { getAllArticles, getAllSeries, getArticlesBySeries } from '@/lib/content'
+import { NewsletterSignup } from '@/components/NewsletterSignup'
 
 function MailIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -113,34 +114,7 @@ function SocialLink({
   )
 }
 
-function Newsletter() {
-  return (
-    <form
-      action="/thank-you"
-      className="rounded-2xl border border-zinc-100 p-6 dark:border-zinc-700/40"
-    >
-      <h2 className="flex text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-        <MailIcon className="h-6 w-6 flex-none" />
-        <span className="ml-3">Stay up to date</span>
-      </h2>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        Get notified when I publish something new, and unsubscribe at any time.
-      </p>
-      <div className="mt-6 flex">
-        <input
-          type="email"
-          placeholder="Email address"
-          aria-label="Email address"
-          required
-          className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(--spacing(2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-hidden sm:text-sm dark:border-zinc-700 dark:bg-zinc-700/[0.15] dark:text-zinc-200 dark:placeholder:text-zinc-500 dark:focus:border-teal-400 dark:focus:ring-teal-400/10"
-        />
-        <Button type="submit" className="ml-4 flex-none">
-          Join
-        </Button>
-      </div>
-    </form>
-  )
-}
+// The Newsletter component has been replaced by the NewsletterSignup component
 
 interface Role {
   company: string
@@ -311,13 +285,13 @@ export default async function Home() {
           <div className="mt-6 flex gap-6">
             <SocialLink target='_blank' href="https://x.com/InfinisoftI" aria-label="Follow on X" icon={XIcon} />
             <SocialLink
-             target='_blank' 
+             target='_blank'
               href="https://github.com/mouimet-infinisoft"
               aria-label="Follow on GitHub"
               icon={GitHubIcon}
             />
             <SocialLink
-             target='_blank' 
+             target='_blank'
               href="https://www.linkedin.com/in/mouimet-infinisoft/"
               aria-label="Follow on LinkedIn"
               icon={LinkedInIcon}
@@ -370,7 +344,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="space-y-10 lg:pl-16 xl:pl-24">
-            <Newsletter />
+            <NewsletterSignup />
             <Resume />
           </div>
         </div>
