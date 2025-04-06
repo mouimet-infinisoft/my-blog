@@ -166,7 +166,7 @@ export async function createStandaloneArticle(
   }
 
   // Create the article metadata
-  const articleMetadata: Partial<Article> = {
+  const articleMetadata: Partial<ArticleWithSlug> = {
     title,
     description: metadata.description || '',
     status: metadata.status || 'draft',
@@ -190,7 +190,7 @@ export async function createStandaloneArticle(
 
   // Create the article MDX file
   const mdxContent = generateArticleMdx(slug, content);
-  await fs.writeFile(mdxPath, mdxContent, 'utf-8');
+  await fs.promises.writeFile(mdxPath, mdxContent, 'utf-8');
 
   return slug;
 }
@@ -298,7 +298,7 @@ export async function createSeriesArticle(
   const jsonPath = path.join(seriesDir, `${baseFileName}.json`);
 
   // Create the article metadata
-  const articleMetadata: Partial<Article> = {
+  const articleMetadata: Partial<ArticleWithSlug> = {
     title,
     description: metadata.description || '',
     status: metadata.status || 'draft',
@@ -318,7 +318,7 @@ export async function createSeriesArticle(
 
   // Create the article MDX file
   const mdxContent = generateArticleMdx(baseFileName, content);
-  await fs.writeFile(mdxPath, mdxContent, 'utf-8');
+  await fs.promises.writeFile(mdxPath, mdxContent, 'utf-8');
 
   // Update the series JSON file with the new article
   seriesData.articles.push({
@@ -347,7 +347,7 @@ export async function createSeriesArticle(
  * @param metadata The article metadata
  */
 async function saveArticleMetadata(filePath: string, metadata: Partial<Article>): Promise<void> {
-  await fs.writeFile(filePath, JSON.stringify(metadata, null, 2), 'utf-8');
+  await fs.promises.writeFile(filePath, JSON.stringify(metadata, null, 2), 'utf-8');
 }
 
 /**
