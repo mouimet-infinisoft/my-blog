@@ -16,8 +16,9 @@ require('dotenv').config({ path: '.env.local' });
 const https = require('https');
 
 // Configuration
-const API_KEY = process.env.NAMECHEAP_API_KEY || '2793f9b0f1d1405c91e144533789fd7f';
-const USERNAME = process.env.NAMECHEAP_USERNAME || 'mouimet-infinisoft';
+const API_KEY = process.env.NAMECHEAP_API_KEY || 'a25fb5d16c24472fba94097508e82066';
+const API_USER = process.env.NAMECHEAP_API_USER || 'infinisoft';
+const USERNAME = process.env.NAMECHEAP_USERNAME || 'infinisoft';
 const CLIENT_IP = process.env.NAMECHEAP_CLIENT_IP || '69.156.159.122';
 const DOMAIN = 'infinisoft.world';
 const SLD = DOMAIN.split('.')[0]; // 'infinisoft'
@@ -80,7 +81,7 @@ async function setupResendDnsPost() {
     const formData = new URLSearchParams();
 
     // Add authentication parameters
-    formData.append('ApiUser', USERNAME);
+    formData.append('ApiUser', API_USER);
     formData.append('ApiKey', API_KEY);
     formData.append('UserName', USERNAME);
     formData.append('ClientIp', CLIENT_IP);
@@ -95,9 +96,9 @@ async function setupResendDnsPost() {
 
     const requestBody = formData.toString();
 
-    // API endpoint options - using sandbox for testing
+    // API endpoint options - using production environment
     const options = {
-      hostname: 'api.sandbox.namecheap.com', // Use sandbox for testing
+      hostname: 'api.namecheap.com', // Use production environment
       path: '/xml.response',
       method: 'POST',
       headers: {

@@ -2,12 +2,12 @@
 
 /**
  * This script sets up the required DNS records for Resend using the Namecheap API.
- * 
+ *
  * Required environment variables:
  * - NAMECHEAP_API_KEY: Your Namecheap API key
  * - NAMECHEAP_USERNAME: Your Namecheap username
  * - NAMECHEAP_CLIENT_IP: Your client IP address
- * 
+ *
  * Usage:
  * node scripts/setup-resend-dns-improved.js
  */
@@ -17,8 +17,9 @@ const https = require('https');
 const querystring = require('querystring');
 
 // Configuration
-const API_KEY = process.env.NAMECHEAP_API_KEY || '2793f9b0f1d1405c91e144533789fd7f';
-const USERNAME = process.env.NAMECHEAP_USERNAME || 'mouimet-infinisoft';
+const API_KEY = process.env.NAMECHEAP_API_KEY || 'a25fb5d16c24472fba94097508e82066';
+const API_USER = process.env.NAMECHEAP_API_USER || 'infinisoft';
+const USERNAME = process.env.NAMECHEAP_USERNAME || 'infinisoft';
 const CLIENT_IP = process.env.NAMECHEAP_CLIENT_IP || '69.156.159.122';
 const DOMAIN = 'infinisoft.world';
 const SLD = DOMAIN.split('.')[0]; // 'infinisoft'
@@ -60,7 +61,7 @@ async function getCurrentDnsRecords() {
   return new Promise((resolve, reject) => {
     // Base API parameters for getHosts
     const params = {
-      ApiUser: USERNAME,
+      ApiUser: API_USER,
       ApiKey: API_KEY,
       UserName: USERNAME,
       ClientIp: CLIENT_IP,
@@ -68,10 +69,10 @@ async function getCurrentDnsRecords() {
       SLD: SLD,
       TLD: TLD
     };
-    
+
     // Convert parameters to query string
     const queryParams = querystring.stringify(params);
-    
+
     // API endpoint
     const options = {
       hostname: 'api.namecheap.com',
@@ -80,15 +81,15 @@ async function getCurrentDnsRecords() {
     };
 
     console.log(`Getting current DNS records for ${SLD}.${TLD}...`);
-    
+
     // Make the request
     const req = https.request(options, (res) => {
       let data = '';
-      
+
       res.on('data', (chunk) => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         if (res.statusCode === 200) {
           console.log('Successfully retrieved current DNS records.');
@@ -100,11 +101,11 @@ async function getCurrentDnsRecords() {
         }
       });
     });
-    
+
     req.on('error', (error) => {
       reject(error);
     });
-    
+
     req.end();
   });
 }
@@ -115,17 +116,17 @@ async function getCurrentDnsRecords() {
  */
 function parseHostRecords(xmlResponse) {
   const hostRecords = [];
-  
+
   // Very basic XML parsing - in a real application, use a proper XML parser
   const hostLines = xmlResponse.match(/<host[^>]*>([\s\S]*?)<\/host>/g) || [];
-  
+
   hostLines.forEach(hostLine => {
     const hostName = (hostLine.match(/Name="([^"]*)"/i) || [])[1];
     const recordType = (hostLine.match(/Type="([^"]*)"/i) || [])[1];
     const address = (hostLine.match(/Address="([^"]*)"/i) || [])[1];
     const mxPref = (hostLine.match(/MXPref="([^"]*)"/i) || [])[1];
     const ttl = (hostLine.match(/TTL="([^"]*)"/i) || [])[1];
-    
+
     if (hostName && recordType && address) {
       const record = {
         HostName: hostName,
@@ -133,15 +134,15 @@ function parseHostRecords(xmlResponse) {
         Address: address,
         TTL: ttl || '1800'
       };
-      
+
       if (mxPref) {
         record.MXPref = mxPref;
       }
-      
+
       hostRecords.push(record);
     }
   });
-  
+
   return hostRecords;
 }
 
@@ -153,25 +154,25 @@ async function setupResendDns() {
     // Get current DNS records
     const currentRecordsXml = await getCurrentDnsRecords();
     const currentRecords = parseHostRecords(currentRecordsXml);
-    
+
     console.log(`Found ${currentRecords.length} existing DNS records.`);
-    
+
     // Combine existing records with Resend records
     // Remove any existing records that would conflict with our new Resend records
     const resendHostNames = RESEND_DNS_RECORDS.map(r => r.HostName);
-    const filteredCurrentRecords = currentRecords.filter(record => 
-      !resendHostNames.includes(record.HostName) || 
+    const filteredCurrentRecords = currentRecords.filter(record =>
+      !resendHostNames.includes(record.HostName) ||
       (record.HostName === resendHostNames && record.RecordType !== 'MX' && record.RecordType !== 'TXT')
     );
-    
+
     // Combine filtered current records with new Resend records
     const allRecords = [...filteredCurrentRecords, ...RESEND_DNS_RECORDS];
-    
+
     console.log(`Setting up ${allRecords.length} DNS records (${filteredCurrentRecords.length} existing + ${RESEND_DNS_RECORDS.length} new)...`);
-    
+
     // Prepare record parameters for setHosts
     const recordParams = {
-      ApiUser: USERNAME,
+      ApiUser: API_USER,
       ApiKey: API_KEY,
       UserName: USERNAME,
       ClientIp: CLIENT_IP,
@@ -179,7 +180,7 @@ async function setupResendDns() {
       SLD: SLD,
       TLD: TLD
     };
-    
+
     // Add all records to the parameters
     allRecords.forEach((record, index) => {
       const i = index + 1;
@@ -187,31 +188,31 @@ async function setupResendDns() {
       recordParams[`RecordType${i}`] = record.RecordType;
       recordParams[`Address${i}`] = record.Address;
       recordParams[`TTL${i}`] = record.TTL || '1800';
-      
+
       if (record.RecordType === 'MX' && record.MXPref) {
         recordParams[`MXPref${i}`] = record.MXPref;
       }
     });
-    
+
     // Convert parameters to query string
     const queryParams = querystring.stringify(recordParams);
-    
+
     // API endpoint
     const options = {
       hostname: 'api.namecheap.com',
       path: `/xml.response?${queryParams}`,
       method: 'GET'
     };
-    
+
     // Make the request
     return new Promise((resolve, reject) => {
       const req = https.request(options, (res) => {
         let data = '';
-        
+
         res.on('data', (chunk) => {
           data += chunk;
         });
-        
+
         res.on('end', () => {
           if (res.statusCode === 200) {
             console.log('DNS records set successfully!');
@@ -222,11 +223,11 @@ async function setupResendDns() {
           }
         });
       });
-      
+
       req.on('error', (error) => {
         reject(error);
       });
-      
+
       req.end();
     });
   } catch (error) {
