@@ -1,0 +1,43 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export const article = {
+  title: "Test Social Media Article (1743945509)",
+  description: "This is a test article to verify the social media publisher functionality",
+  author: "Test Author",
+  date: "2025-04-06",
+  slug: "test-social-media-article-1743945509",
+  tags: ["test", "social-media"],
+  category: "Testing",
+  status: "published",
+  publishDate: "2025-04-06",
+  socialMedia: {
+    linkedin: true,
+    twitter: true,
+    facebook: true,
+    devto: true
+  }
+}
+
+export const metadata = {
+  title: article.title,
+  description: article.description,
+}
+
+export default (props) => <ArticleLayout article={article} {...props} />
+
+# Test Social Media Article
+
+This is a test article created to verify that the social media publisher functionality works correctly.
+
+## Purpose
+
+The purpose of this article is to:
+
+1. Test the automated social media publishing system
+2. Verify that the cron job correctly identifies newly published content
+3. Ensure that posts are created for the selected social media platforms
+
+This article should be automatically detected by the social media publisher because it has:
+- Today's date as the publication date
+- "published" status
+- Social media flags set to true
