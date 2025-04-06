@@ -1,20 +1,24 @@
 import { ArticleLayout } from '@/components/ArticleLayout'
 
 export const article = {
-  title: "Building a Real-World Application with @brainstack/inject: A Step-by-Step Tutorial",
-  description: "Learn how to build a real-world application using @brainstack/inject, demonstrating its features and benefits in a practical scenario.",
-  author: "Martin Ouimet",
-  date: "2025-03-10",
-  slug: "real-use-case-brainstack-inject",
-  category: "Uncategorized",
-  githubRepo: "",
-  status: "draft",
-  publishDate: "2025-04-05",
+  title:
+    'Building a Real-World Application with @brainstack/inject: A Step-by-Step Tutorial',
+  description:
+    'Learn how to build a real-world application using @brainstack/inject, demonstrating its features and benefits in a practical scenario.',
+  author: 'Martin Ouimet',
+  date: '2025-03-10',
+  slug: 'real-use-case-brainstack-inject',
+  category: 'Uncategorized',
+  githubRepo: '',
+  status: 'draft',
+  publishDate: '2025-04-05',
 }
 
 export const metadata = {
-  title: article.title,
-  description: article.description,
+  title:
+    'Building a Real-World Application with @brainstack/inject: A Step-by-Step Tutorial',
+  description:
+    'Learn how to build a real-world application using @brainstack/inject, demonstrating its features and benefits in a practical scenario.',
 }
 
 export default (props) => <ArticleLayout article={article} {...props} />
@@ -44,49 +48,49 @@ npm install @brainstack/inject express body-parser
 Create a `TaskService` class that will handle the business logic for managing tasks.
 
 ```typescript
-import { Service } from '@brainstack/inject';
+import { Service } from '@brainstack/inject'
 
 interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
+  id: number
+  title: 'Building a Real-World Application with @brainstack/inject: A Step-by-Step Tutorial'
+  completed: boolean
 }
 
 @Service()
 class TaskService {
-  private tasks: Task[] = [];
-  private nextId = 1;
+  private tasks: Task[] = []
+  private nextId = 1
 
   getAllTasks(): Task[] {
-    return this.tasks;
+    return this.tasks
   }
 
   getTaskById(id: number): Task | undefined {
-    return this.tasks.find(task => task.id === id);
+    return this.tasks.find((task) => task.id === id)
   }
 
   createTask(title: string): Task {
-    const newTask: Task = { id: this.nextId++, title, completed: false };
-    this.tasks.push(newTask);
-    return newTask;
+    const newTask: Task = { id: this.nextId++, title, completed: false }
+    this.tasks.push(newTask)
+    return newTask
   }
 
   updateTask(id: number, title: string, completed: boolean): Task | undefined {
-    const task = this.getTaskById(id);
+    const task = this.getTaskById(id)
     if (task) {
-      task.title = title;
-      task.completed = completed;
+      task.title = title
+      task.completed = completed
     }
-    return task;
+    return task
   }
 
   deleteTask(id: number): boolean {
-    const index = this.tasks.findIndex(task => task.id === id);
+    const index = this.tasks.findIndex((task) => task.id === id)
     if (index !== -1) {
-      this.tasks.splice(index, 1);
-      return true;
+      this.tasks.splice(index, 1)
+      return true
     }
-    return false;
+    return false
   }
 }
 ```
@@ -96,59 +100,63 @@ class TaskService {
 Create an Express application and set up the routes for managing tasks.
 
 ```typescript
-import express from 'express';
-import bodyParser from 'body-parser';
-import { Container } from '@brainstack/inject';
-import { TaskService } from './TaskService';
+import express from 'express'
+import bodyParser from 'body-parser'
+import { Container } from '@brainstack/inject'
+import { TaskService } from './TaskService'
 
-const app = express();
-const container = new Container();
-const taskService = container.getInstance(TaskService);
+const app = express()
+const container = new Container()
+const taskService = container.getInstance(TaskService)
 
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 app.get('/tasks', (req, res) => {
-  res.json(taskService.getAllTasks());
-});
+  res.json(taskService.getAllTasks())
+})
 
 app.get('/tasks/:id', (req, res) => {
-  const task = taskService.getTaskById(parseInt(req.params.id));
+  const task = taskService.getTaskById(parseInt(req.params.id))
   if (task) {
-    res.json(task);
+    res.json(task)
   } else {
-    res.status(404).send('Task not found');
+    res.status(404).send('Task not found')
   }
-});
+})
 
 app.post('/tasks', (req, res) => {
-  const { title } = req.body;
-  const newTask = taskService.createTask(title);
-  res.status(201).json(newTask);
-});
+  const { title } = req.body
+  const newTask = taskService.createTask(title)
+  res.status(201).json(newTask)
+})
 
 app.put('/tasks/:id', (req, res) => {
-  const { title, completed } = req.body;
-  const updatedTask = taskService.updateTask(parseInt(req.params.id), title, completed);
+  const { title, completed } = req.body
+  const updatedTask = taskService.updateTask(
+    parseInt(req.params.id),
+    title,
+    completed,
+  )
   if (updatedTask) {
-    res.json(updatedTask);
+    res.json(updatedTask)
   } else {
-    res.status(404).send('Task not found');
+    res.status(404).send('Task not found')
   }
-});
+})
 
 app.delete('/tasks/:id', (req, res) => {
-  const success = taskService.deleteTask(parseInt(req.params.id));
+  const success = taskService.deleteTask(parseInt(req.params.id))
   if (success) {
-    res.status(204).send();
+    res.status(204).send()
   } else {
-    res.status(404).send('Task not found');
+    res.status(404).send('Task not found')
   }
-});
+})
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+  console.log(`Server is running on port ${PORT}`)
+})
 ```
 
 ## Step 4: Running the Application

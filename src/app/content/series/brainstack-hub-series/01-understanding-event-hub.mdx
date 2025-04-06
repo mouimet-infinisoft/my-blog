@@ -1,23 +1,26 @@
 import { ArticleLayout } from '@/components/ArticleLayout'
 
 export const article = {
-  title: "Understanding Event-Driven Architecture with @brainstack/hub",
-  description: "Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.",
-  author: "Martin Ouimet",
-  date: "2025-04-01",
+  title: 'Understanding Event-Driven Architecture with @brainstack/hub',
+  description:
+    'Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.',
+  author: 'Martin Ouimet',
+  date: '2025-04-01',
   order: 1,
-  seriesSlug: "brainstack-hub-series",
-  slug: "understanding-event-hub",
-  tags: ["event-driven", "architecture", "brainstack", "hub", "typescript"],
-  category: "Architecture",
-  githubRepo: "",
-  status: "draft",
-  publishDate: "2025-04-05",
+  seriesSlug: 'brainstack-hub-series',
+  slug: 'understanding-event-hub',
+  tags: ['event-driven', 'architecture', 'brainstack', 'hub', 'typescript'],
+  category: 'Architecture',
+  githubRepo: '',
+  status: 'draft',
+  publishDate: '2025-04-05',
+  tags: ['event-driven', 'architecture', 'brainstack', 'hub', 'typescript'],
 }
 
 export const metadata = {
-  title: article.title,
-  description: article.description,
+  title: 'Understanding Event-Driven Architecture with @brainstack/hub',
+  description:
+    'Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.',
 }
 
 export default (props) => <ArticleLayout article={article} {...props} />
@@ -52,12 +55,12 @@ The complete code examples for this article can be found in our [GitHub reposito
 ### Event Hub Creation
 
 ```typescript
-import { createEventHub } from '@brainstack/hub';
+import { createEventHub } from '@brainstack/hub'
 
 const hub = createEventHub({
-  source: 'myApp',  // Optional source identifier
-  logger: customLogger  // Optional custom logger
-});
+  source: 'myApp', // Optional source identifier
+  logger: customLogger, // Optional custom logger
+})
 ```
 
 ### Event Subscription
@@ -65,13 +68,13 @@ const hub = createEventHub({
 ```typescript
 // Subscribe to specific events
 const unsubscribe = hub.on('userLoggedIn', (userData) => {
-  console.log('User logged in:', userData);
-});
+  console.log('User logged in:', userData)
+})
 
 // Subscribe to patterns using RegExp
 hub.on(/user\.*/, (userData) => {
   // Handles all events starting with "user."
-});
+})
 ```
 
 ### Event Emission
@@ -79,8 +82,8 @@ hub.on(/user\.*/, (userData) => {
 ```typescript
 hub.emit('userLoggedIn', {
   id: '123',
-  username: 'john_doe'
-});
+  username: 'john_doe',
+})
 ```
 
 ## Advanced Features
@@ -99,37 +102,40 @@ The RegExp support in @brainstack/hub enables powerful event pattern matching:
 
 ```typescript
 // Match all events in a specific domain
-hub.on(/auth\.*/, handleAuthEvents);
+hub.on(/auth\.*/, handleAuthEvents)
 
 // Match events with specific patterns
-hub.on(/user\.(created|updated|deleted)/, handleUserLifecycle);
+hub.on(/user\.(created|updated|deleted)/, handleUserLifecycle)
 ```
 
 ## Best Practices
 
 1. **Event Naming**: Use consistent naming conventions for your events
+
    - Domain-prefixed: `auth.login`, `user.created`
    - Action-based: `document.created`, `payment.processed`
 
 2. **Granular Events**: Keep events focused and specific
+
    - Instead of `userUpdated`, use `userEmailUpdated` or `userAddressUpdated`
 
 3. **Clean Up**: Always clean up event subscriptions when they're no longer needed
+
    ```typescript
-   const unsubscribe = hub.on('myEvent', handler);
+   const unsubscribe = hub.on('myEvent', handler)
    // Later...
-   unsubscribe();
+   unsubscribe()
    ```
 
 4. **Error Handling**: Implement proper error handling in your event handlers
    ```typescript
    hub.on('criticalEvent', (data) => {
      try {
-       processData(data);
+       processData(data)
      } catch (error) {
-       logger.error('Error processing event:', error);
+       logger.error('Error processing event:', error)
      }
-   });
+   })
    ```
 
 ## Integration with Brainstack Framework
