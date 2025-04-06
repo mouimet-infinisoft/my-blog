@@ -1,0 +1,19 @@
+{
+  "title": "Understanding InfiniCode",
+  "description": "An introduction to InfiniCode, a modern IDE that combines visual editing with traditional code editing.",
+  "author": "Martin Ouimet",
+  "date": "2025-04-01",
+  "order": 1,
+  "seriesSlug": "infinicode-series",
+  "slug": "understanding-infinicode-content",
+  "tags": [
+    "infinicode",
+    "ide",
+    "visual-editing",
+    "development-tools"
+  ],
+  "category": "Development Tools",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

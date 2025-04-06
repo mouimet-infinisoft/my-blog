@@ -1,0 +1,12 @@
+{
+  "title": "Testing with @brainstack/inject: Mocking and Swapping Dependencies",
+  "description": "Learn how to test your applications using @brainstack/inject, including techniques for mocking and swapping dependencies.",
+  "author": "Martin Ouimet",
+  "date": "2025-03-10",
+  "slug": "testing-brainstack-inject",
+  "category": "Uncategorized",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05",
+  "isStandalone": true
+}
