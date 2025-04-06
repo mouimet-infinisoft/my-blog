@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SimpleLayout } from '@/components/SimpleLayout'
 import { Card } from '@/components/Card'
+import { SocialShareButtons } from '@/components/SocialShareButtons'
+import { Comments } from '@/components/Comments'
 import { formatDate } from '@/lib/formatDate'
 import { getAllSeries } from '@/lib/content'
 import { Calendar, ArrowLeft } from '@/components/ui/icons'
@@ -30,6 +32,21 @@ export async function generateMetadata({ params }: SeriesPageProps): Promise<Met
       title: `${currentSeries.name} - Martin Ouimet`,
       description: currentSeries.description,
       type: 'website',
+      url: `https://blog.infinisoft.world/series/${params.seriesSlug}`,
+      images: [
+        {
+          url: currentSeries.coverImage || 'https://blog.infinisoft.world/og-image.jpg',
+          width: 1200,
+          height: 630,
+          alt: currentSeries.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${currentSeries.name} - Martin Ouimet`,
+      description: currentSeries.description,
+      images: [currentSeries.coverImage || 'https://blog.infinisoft.world/og-image.jpg'],
     },
   }
 }
@@ -69,6 +86,10 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
           <ArrowLeft className="mr-1 h-4 w-4" />
           Back to all series
         </Link>
+      </div>
+
+      <div className="mb-8">
+        <SocialShareButtons title={currentSeries.name} description={currentSeries.description} />
       </div>
 
       <div className="space-y-6">
@@ -117,6 +138,12 @@ export default async function SeriesPage({ params }: SeriesPageProps) {
             </div>
           </Card>
         ))}
+      </div>
+
+      <div className="mt-16 pt-10 border-t border-zinc-200 dark:border-zinc-700">
+
+        <Comments category="Blog Comments" path={`/series/${params.seriesSlug}`} />
+
       </div>
     </SimpleLayout>
   )

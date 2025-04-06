@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { ArticleLayout } from '@/components/ArticleLayout'
 import { getArticleBySlug, getStandaloneArticles } from '@/lib/content'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
+import { SocialShareButtons } from '@/components/SocialShareButtons'
+import { Comments } from '@/components/Comments'
 import fs from 'fs'
 import path from 'path'
 
@@ -28,6 +30,21 @@ export async function generateMetadata({
         publishedTime: article.date,
         authors: [article.author],
         tags: article.tags,
+        url: `https://blog.infinisoft.world/articles/${article.slug}`,
+        images: [
+          {
+            url: article.coverImage || 'https://blog.infinisoft.world/og-image.jpg',
+            width: 1200,
+            height: 630,
+            alt: article.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: article.title,
+        description: article.description,
+        images: [article.coverImage || 'https://blog.infinisoft.world/og-image.jpg'],
       },
     }
   } catch (error) {
@@ -71,9 +88,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
     return (
       <ArticleLayout article={article}>
-         <div className="article-content">
-           <MarkdownRenderer content={content} />
-         </div>
+        <div className="mt-6 mb-8">
+          <SocialShareButtons title={article.title} description={article.description} />
+        </div>
+        <div className="article-content">
+          <MarkdownRenderer content={content} />
+        </div>
+        <Comments category="Blog Comments" path={`/articles/${article.slug}`} />
       </ArticleLayout>
     )
   } catch (error) {
