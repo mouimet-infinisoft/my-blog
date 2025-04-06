@@ -16,5 +16,9 @@
     "twitter": true,
     "facebook": true,
     "devto": true
-  }
+  },
+  "shareOnLinkedin": true,
+  "shareOnTwitter": true,
+  "shareOnFacebook": true,
+  "shareOnDevto": true
 }

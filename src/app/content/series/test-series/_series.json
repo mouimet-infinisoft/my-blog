@@ -10,7 +10,7 @@
       "title": "Test Series Article with Separate JSON Metadata",
       "description": "This is a test series article to verify our new approach of separating metadata from MDX content.",
       "slug": "test-article",
-      "status": "draft",
+      "status": "ready",
       "publishDate": "2025-06-05",
       "order": 1,
       "author": "Martin Ouimet",

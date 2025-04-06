@@ -6,9 +6,14 @@
   "order": 1,
   "seriesSlug": "test-series",
   "slug": "test-article",
-  "tags": ["test", "metadata", "json", "series"],
+  "tags": [
+    "test",
+    "metadata",
+    "json",
+    "series"
+  ],
   "category": "Test",
   "githubRepo": "",
-  "status": "draft",
+  "status": "ready",
   "publishDate": "2025-06-05"
 }

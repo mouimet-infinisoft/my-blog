@@ -9,7 +9,8 @@
     "lint": "next lint",
     "cross-post": "ts-node -P src/scripts/tsconfig.json src/scripts/cross-post.ts",
     "add-publication-states": "ts-node -P src/scripts/tsconfig.json src/scripts/add-publication-states.ts",
-    "fix-article-commas": "ts-node -P src/scripts/tsconfig.json src/scripts/fix-article-commas.ts"
+    "fix-article-commas": "ts-node -P src/scripts/tsconfig.json src/scripts/fix-article-commas.ts",
+    "migrate-mdx": "node scripts/migrate-mdx-files.js"
   },
   "browserslist": "defaults, not ie <= 11",
   "dependencies": {

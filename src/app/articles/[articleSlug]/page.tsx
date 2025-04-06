@@ -59,15 +59,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     // Read the MDX file content
     const fileContent = fs.readFileSync(filePath, 'utf8')
 
-    // Extract the content part (after the default export)
-    const contentMatch = fileContent.match(
-      /export default function MDXPage\(props\)[^}]*}([\s\S]*)/,
-    )
-    let content = ''
-
-    if (contentMatch) {
-      content = contentMatch[1]
-    }
+    // The MDX file now contains only the Markdown content
+    const content = fileContent
 
     return (
       <ArticleLayout article={article}>
