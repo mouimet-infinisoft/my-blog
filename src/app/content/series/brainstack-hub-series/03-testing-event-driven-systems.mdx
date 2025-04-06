@@ -1,0 +1,399 @@
+## Introduction
+
+Testing event-driven systems presents unique challenges due to their asynchronous nature and complex event interactions. In this article, we'll explore comprehensive testing strategies for applications built with @brainstack/hub.
+
+## Testing Framework Setup
+
+First, let's set up a testing environment that supports event-driven testing:
+
+```typescript
+import { createEventHub, EventHub } from '@brainstack/hub';
+import { createLogger } from '@brainstack/log';
+
+interface TestContext {
+  hub: EventHub;
+  events: any[];
+  cleanup: () => void;
+}
+
+function createTestContext(): TestContext {
+  const events: any[] = [];
+  const hub = createEventHub({
+    logger: createLogger({ level: 'error' })
+  });
+
+  // Record all events for inspection
+  const unsubscribe = hub.on('.*', (payload) => {
+    events.push({
+      type: payload.type,
+      data: payload.data,
+      timestamp: Date.now()
+    });
+  });
+
+  return {
+    hub,
+    events,
+    cleanup: unsubscribe
+  };
+}
+```
+
+## Unit Testing Event Handlers
+
+Here's how to test individual event handlers:
+
+```typescript
+describe('EventHandler Tests', () => {
+  let context: TestContext;
+
+  beforeEach(() => {
+    context = createTestContext();
+  });
+
+  afterEach(() => {
+    context.cleanup();
+  });
+
+  test('handler processes event correctly', (done) => {
+    // Arrange
+    context.hub.on('test.event', (data) => {
+      // Assert
+      expect(data).toEqual({ value: 'test' });
+      done();
+    });
+
+    // Act
+    context.hub.emit('test.event', { value: 'test' });
+  });
+
+  test('handler uses correct event pattern matching', () => {
+    const matches: string[] = [];
+
+    // Subscribe to pattern
+    context.hub.on(/user\.[a-z]+/, (data) => {
+      matches.push(data.type);
+    });
+
+    // Emit various events
+    context.hub.emit('user.created', { id: 1 });
+    context.hub.emit('user.updated', { id: 1 });
+    context.hub.emit('system.error', { code: 500 });
+
+    // Assert
+    expect(matches).toHaveLength(2);
+    expect(matches).toContain('user.created');
+    expect(matches).toContain('user.updated');
+  });
+});
+```
+
+## Testing Event Sequences
+
+Test complex event sequences and their interactions:
+
+```typescript
+class EventSequenceValidator {
+  private expectedSequence: string[];
+  private actualSequence: string[] = [];
+  private hub: EventHub;
+
+  constructor(hub: EventHub, expectedSequence: string[]) {
+    this.hub = hub;
+    this.expectedSequence = expectedSequence;
+
+    // Listen to all events
+    this.hub.on('.*', (payload) => {
+      this.actualSequence.push(payload.type);
+    });
+  }
+
+  async validateSequence(): Promise<boolean> {
+    // Wait for all events to be processed
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    if (this.actualSequence.length !== this.expectedSequence.length) {
+      return false;
+    }
+
+    return this.actualSequence.every(
+      (event, index) => event === this.expectedSequence[index]
+    );
+  }
+}
+
+describe('Event Sequence Tests', () => {
+  let context: TestContext;
+
+  beforeEach(() => {
+    context = createTestContext();
+  });
+
+  test('workflow executes events in correct order', async () => {
+    // Define expected sequence
+    const expectedSequence = [
+      'workflow.start',
+      'task.init',
+      'task.process',
+      'task.complete',
+      'workflow.end'
+    ];
+
+    const validator = new EventSequenceValidator(
+      context.hub,
+      expectedSequence
+    );
+
+    // Execute workflow
+    context.hub.emit('workflow.start', { id: '123' });
+    context.hub.emit('task.init', { workflowId: '123' });
+    context.hub.emit('task.process', { status: 'processing' });
+    context.hub.emit('task.complete', { status: 'success' });
+    context.hub.emit('workflow.end', { result: 'success' });
+
+    // Validate sequence
+    const isValid = await validator.validateSequence();
+    expect(isValid).toBe(true);
+  });
+});
+```
+
+## Integration Testing
+
+Test how different components interact through events:
+
+```typescript
+class UserService {
+  constructor(private hub: EventHub) {
+    this.hub.on('user.create', this.createUser);
+  }
+
+  private createUser = async (data: any) => {
+    // Simulate user creation
+    const user = {
+      id: crypto.randomUUID(),
+      ...data
+    };
+
+    // Emit success event
+    this.hub.emit('user.created', user);
+  }
+}
+
+class NotificationService {
+  private notifications: any[] = [];
+
+  constructor(private hub: EventHub) {
+    this.hub.on('user.created', this.sendWelcomeEmail);
+  }
+
+  private sendWelcomeEmail = (user: any) => {
+    this.notifications.push({
+      type: 'email',
+      to: user.email,
+      template: 'welcome'
+    });
+
+    this.hub.emit('notification.sent', {
+      userId: user.id,
+      type: 'welcome_email'
+    });
+  }
+
+  getNotifications() {
+    return this.notifications;
+  }
+}
+
+describe('Service Integration Tests', () => {
+  let context: TestContext;
+  let userService: UserService;
+  let notificationService: NotificationService;
+
+  beforeEach(() => {
+    context = createTestContext();
+    userService = new UserService(context.hub);
+    notificationService = new NotificationService(context.hub);
+  });
+
+  test('user creation triggers welcome email', (done) => {
+    const userData = {
+      email: 'test@example.com',
+      name: 'Test User'
+    };
+
+    // Listen for the final event in the chain
+    context.hub.on('notification.sent', (data) => {
+      // Check notifications were created
+      const notifications = notificationService.getNotifications();
+      expect(notifications).toHaveLength(1);
+      expect(notifications[0].to).toBe(userData.email);
+      expect(notifications[0].template).toBe('welcome');
+      done();
+    });
+
+    // Trigger the initial event
+    context.hub.emit('user.create', userData);
+  });
+});
+```
+
+## Testing Event Error Handling
+
+Test how your system handles event errors:
+
+```typescript
+describe('Event Error Handling', () => {
+  let context: TestContext;
+
+  beforeEach(() => {
+    context = createTestContext();
+  });
+
+  test('failed event is sent to error handler', (done) => {
+    // Set up error handler
+    context.hub.on('error', (error) => {
+      expect(error.originalEvent).toBe('process.data');
+      expect(error.error).toBeDefined();
+      done();
+    });
+
+    // Set up failing handler
+    context.hub.on('process.data', () => {
+      throw new Error('Processing failed');
+    });
+
+    // Trigger event that will fail
+    context.hub.emit('process.data', { value: 'test' });
+  });
+
+  test('error event includes context', (done) => {
+    const originalData = { id: '123', value: 'test' };
+
+    context.hub.on('error', (error) => {
+      expect(error.context).toEqual(originalData);
+      done();
+    });
+
+    context.hub.on('process.data', (data) => {
+      throw new Error('Processing failed');
+    });
+
+    context.hub.emit('process.data', originalData);
+  });
+});
+```
+
+## Testing Event Timing
+
+Test timing-related event behavior:
+
+```typescript
+describe('Event Timing Tests', () => {
+  let context: TestContext;
+
+  beforeEach(() => {
+    context = createTestContext();
+  });
+
+  test('events are processed in order within timeout', async () => {
+    const results: number[] = [];
+    const timeout = 100;
+
+    // Set up delayed handlers
+    context.hub.on('event.1', async () => {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      results.push(1);
+    });
+
+    context.hub.on('event.2', async () => {
+      await new Promise(resolve => setTimeout(resolve, 25));
+      results.push(2);
+    });
+
+    // Emit events
+    context.hub.emit('event.1');
+    context.hub.emit('event.2');
+
+    // Wait for processing
+    await new Promise(resolve => setTimeout(resolve, timeout));
+
+    // Check order
+    expect(results).toEqual([2, 1]);
+  });
+});
+```
+
+## Testing Event Patterns
+
+Test different event pattern matching scenarios:
+
+```typescript
+describe('Event Pattern Tests', () => {
+  let context: TestContext;
+
+  beforeEach(() => {
+    context = createTestContext();
+  });
+
+  test('wildcard pattern matches correctly', () => {
+    const matches: string[] = [];
+
+    context.hub.on('test.*', (event) => {
+      matches.push(event.type);
+    });
+
+    context.hub.emit('test.one');
+    context.hub.emit('test.two');
+    context.hub.emit('other.event');
+
+    expect(matches).toHaveLength(2);
+    expect(matches).toContain('test.one');
+    expect(matches).toContain('test.two');
+  });
+
+  test('regex pattern matches correctly', () => {
+    const matches: string[] = [];
+
+    context.hub.on(/user\.[0-9]+\.update/, (event) => {
+      matches.push(event.type);
+    });
+
+    context.hub.emit('user.123.update');
+    context.hub.emit('user.456.update');
+    context.hub.emit('user.abc.update');
+
+    expect(matches).toHaveLength(2);
+    expect(matches).toContain('user.123.update');
+    expect(matches).toContain('user.456.update');
+  });
+});
+```
+
+## Best Practices
+
+1. **Isolated Testing Environments**
+   - Create fresh event hub instances for each test
+   - Clean up subscriptions after tests
+   - Use mocked dependencies
+
+2. **Event Tracking**
+   - Record all emitted events for validation
+   - Validate event payloads
+   - Check event order when relevant
+
+3. **Async Testing**
+   - Use proper async/await patterns
+   - Set appropriate timeouts
+   - Handle promise rejections
+
+4. **Error Scenarios**
+   - Test error handlers
+   - Verify error event propagation
+   - Check error context preservation
+
+## Conclusion
+
+Testing event-driven systems requires careful attention to asynchronous behavior, event sequences, and error handling. @brainstack/hub provides the tools needed to implement comprehensive test coverage for your event-driven applications. By following these testing patterns and best practices, you can ensure your system behaves correctly and reliably.
+
+This concludes our series on @brainstack/hub. We've covered everything from basic concepts to advanced patterns, real-world applications, and testing strategies. You now have the knowledge needed to build robust, event-driven systems using @brainstack/hub.

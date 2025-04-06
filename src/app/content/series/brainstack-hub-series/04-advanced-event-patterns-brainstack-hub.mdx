@@ -1,0 +1,296 @@
+## Introduction
+
+After covering the basics of @brainstack/hub, let's explore advanced event patterns that can help you build more sophisticated event-driven systems. We'll look at event sourcing, event replay, and complex event processing patterns.
+
+## Event Sourcing Pattern
+
+Event sourcing is a pattern where you store the state changes of your application as a sequence of events. This allows you to:
+- Reconstruct the system state at any point in time
+- Implement audit logging
+- Debug complex state-related issues
+
+Here's how to implement event sourcing with @brainstack/hub:
+
+```typescript
+import { createEventHub } from '@brainstack/hub';
+import { createLogger } from '@brainstack/log';
+
+interface StateEvent {
+  id: string;
+  type: string;
+  payload: any;
+  timestamp: number;
+  version: number;
+}
+
+class EventStore {
+  private events: StateEvent[] = [];
+  private currentState: any = {};
+  private version = 0;
+  private hub = createEventHub();
+  private logger = createLogger();
+
+  constructor() {
+    // Listen for new events
+    this.hub.on('state.event', this.processEvent);
+  }
+
+  private processEvent = (event: StateEvent) => {
+    this.events.push(event);
+    this.version++;
+
+    // Apply the event to current state
+    this.currentState = this.applyEvent(this.currentState, event);
+
+    // Emit the updated state
+    this.hub.emit('state.updated', {
+      state: this.currentState,
+      version: this.version
+    });
+  }
+
+  private applyEvent(state: any, event: StateEvent) {
+    // Event-specific state mutations
+    switch (event.type) {
+      case 'item.added':
+        return { ...state, items: [...(state.items || []), event.payload] };
+      case 'item.removed':
+        return {
+          ...state,
+          items: (state.items || []).filter(i => i.id !== event.payload.id)
+        };
+      default:
+        return state;
+    }
+  }
+
+  // Replay events to a specific point in time
+  replayToTimestamp(timestamp: number) {
+    this.currentState = {};
+    this.version = 0;
+
+    const eventsToReplay = this.events.filter(e => e.timestamp <= timestamp);
+
+    eventsToReplay.forEach(event => {
+      this.currentState = this.applyEvent(this.currentState, event);
+      this.version++;
+    });
+
+    return this.currentState;
+  }
+}
+```
+
+## Complex Event Processing (CEP)
+
+Complex Event Processing involves analyzing multiple events to identify patterns or derive higher-level events. Here's an implementation using @brainstack/hub:
+
+```typescript
+class ComplexEventProcessor {
+  private hub = createEventHub();
+  private eventWindow: any[] = [];
+  private windowSize = 5000; // 5 seconds
+
+  constructor() {
+    // Listen for base events
+    this.hub.on('sensor.reading', this.processSensorReading);
+  }
+
+  private processSensorReading = (reading: any) => {
+    const now = Date.now();
+
+    // Add new reading to window
+    this.eventWindow.push({ ...reading, timestamp: now });
+
+    // Remove old events
+    this.eventWindow = this.eventWindow.filter(
+      e => now - e.timestamp <= this.windowSize
+    );
+
+    // Analyze patterns
+    this.detectAnomalies();
+    this.checkThresholds();
+  }
+
+  private detectAnomalies() {
+    if (this.eventWindow.length < 3) return;
+
+    // Calculate moving average
+    const values = this.eventWindow.map(e => e.value);
+    const avg = values.reduce((a, b) => a + b) / values.length;
+    const stdDev = Math.sqrt(
+      values.reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / values.length
+    );
+
+    // Check for values outside 2 standard deviations
+    const latestValue = values[values.length - 1];
+    if (Math.abs(latestValue - avg) > stdDev * 2) {
+      this.hub.emit('anomaly.detected', {
+        value: latestValue,
+        average: avg,
+        standardDeviation: stdDev
+      });
+    }
+  }
+
+  private checkThresholds() {
+    // Count events above threshold in window
+    const highReadings = this.eventWindow.filter(e => e.value > 100);
+
+    if (highReadings.length >= 3) {
+      this.hub.emit('threshold.exceeded', {
+        count: highReadings.length,
+        readings: highReadings
+      });
+    }
+  }
+}
+```
+
+## Event Broadcasting and Filtering
+
+@brainstack/hub supports sophisticated event broadcasting and filtering patterns:
+
+```typescript
+class EventBroadcaster {
+  private hub = createEventHub();
+
+  constructor() {
+    // Match all events in specific domains
+    this.hub.on(/^(user|system)\..*/, this.logDomainEvent);
+
+    // Match specific event patterns
+    this.hub.on(/error\.(critical|warning)/, this.handleError);
+
+    // Match events with wildcard segments
+    this.hub.on('notification.*.sent', this.trackNotification);
+  }
+
+  private logDomainEvent = (event: any) => {
+    console.log(`Domain event received: ${event.type}`);
+  }
+
+  private handleError = (error: any) => {
+    if (error.level === 'critical') {
+      this.hub.emit('alert.triggered', {
+        source: error.source,
+        message: error.message
+      });
+    }
+  }
+
+  private trackNotification = (notification: any) => {
+    // Track all sent notifications regardless of type
+    this.hub.emit('metrics.notification.sent', {
+      type: notification.type,
+      timestamp: Date.now()
+    });
+  }
+}
+```
+
+## Event Correlation
+
+Correlating related events is crucial in distributed systems. Here's how to implement event correlation:
+
+```typescript
+class EventCorrelator {
+  private hub = createEventHub();
+  private correlationMap = new Map<string, any[]>();
+
+  constructor() {
+    this.hub.on('transaction.started', this.startCorrelation);
+    this.hub.on('transaction.step', this.correlateStep);
+    this.hub.on('transaction.completed', this.completeCorrelation);
+  }
+
+  private startCorrelation = (event: any) => {
+    const correlationId = event.correlationId;
+    this.correlationMap.set(correlationId, [event]);
+  }
+
+  private correlateStep = (event: any) => {
+    const correlationId = event.correlationId;
+    const events = this.correlationMap.get(correlationId) || [];
+    events.push(event);
+    this.correlationMap.set(correlationId, events);
+  }
+
+  private completeCorrelation = (event: any) => {
+    const correlationId = event.correlationId;
+    const events = this.correlationMap.get(correlationId) || [];
+    events.push(event);
+
+    // Process the complete transaction
+    this.processTransaction(correlationId, events);
+
+    // Cleanup
+    this.correlationMap.delete(correlationId);
+  }
+
+  private processTransaction(correlationId: string, events: any[]) {
+    const duration = events[events.length - 1].timestamp - events[0].timestamp;
+
+    this.hub.emit('transaction.analyzed', {
+      correlationId,
+      events: events.length,
+      duration,
+      status: events[events.length - 1].status
+    });
+  }
+}
+```
+
+## Best Practices for Advanced Patterns
+
+1. **Event Versioning**
+   - Include version information in your events
+   - Handle backward compatibility for event schema changes
+   - Consider using event upcasting for version migrations
+
+2. **Error Handling**
+   - Implement dead letter queues for failed event processing
+   - Use event replay for recovery
+   - Log all event processing errors
+
+3. **Performance Optimization**
+   - Use event batching for high-frequency events
+   - Implement event filtering at source
+   - Consider event compression for large payloads
+
+4. **Testing**
+   - Create event sequence generators for testing
+   - Test event replay functionality
+   - Verify event correlation logic
+
+## Integration with Other Brainstack Components
+
+@brainstack/hub works seamlessly with other Brainstack components:
+
+```typescript
+import { createStore } from '@brainstack/store';
+import { createEventHub } from '@brainstack/hub';
+import { createLogger } from '@brainstack/log';
+
+// Create integrated event system
+const hub = createEventHub();
+const store = createStore({ eventHub: hub });
+const logger = createLogger();
+
+// Event middleware for logging
+hub.on('.*', (event) => {
+  logger.info('Event processed:', {
+    type: event.type,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// State changes trigger events
+store.subscribe((state) => {
+  hub.emit('state.changed', state);
+});
+```
+
+## Conclusion
+
+These advanced patterns showcase the flexibility and power of @brainstack/hub in building sophisticated event-driven systems. In the next article, we'll explore how to build a real-time chat system using these patterns.

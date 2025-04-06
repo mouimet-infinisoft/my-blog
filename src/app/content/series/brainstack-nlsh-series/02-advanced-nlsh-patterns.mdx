@@ -1,0 +1,335 @@
+## Introduction
+
+Building on our understanding of @brainstack/nlsh basics, let's explore advanced patterns and real-world applications for natural language terminal interaction.
+
+## Advanced Patterns
+
+### Command Chaining
+
+Chain multiple operations using natural language:
+
+```typescript
+import { Nlsh } from '@brainstack/nlsh';
+
+class CommandChainer {
+  private nlsh: Nlsh;
+
+  constructor() {
+    this.nlsh = new Nlsh({
+      trustLevel: 'INTERACTIVE',
+      allowChaining: true // Enable command chaining
+    });
+  }
+
+  async executeChain(commands: string[]) {
+    for (const command of commands) {
+      const result = await this.nlsh.processInput(command);
+      if (!result.success) {
+        throw new Error(`Chain failed at: ${command}`);
+      }
+    }
+  }
+}
+
+// Usage example
+const chainer = new CommandChainer();
+chainer.executeChain([
+  'find all log files older than 7 days',
+  'compress these files into archive.zip',
+  'move archive.zip to backup folder',
+  'delete the original log files'
+]);
+```
+
+### Custom Command Templates
+
+Create templates for common operations:
+
+```typescript
+interface CommandTemplate {
+  pattern: string;
+  variables: string[];
+  generate: (vars: Record<string, string>) => string;
+}
+
+class TemplatedNlsh extends Nlsh {
+  private templates: Map<string, CommandTemplate> = new Map();
+
+  registerTemplate(name: string, template: CommandTemplate) {
+    this.templates.set(name, template);
+  }
+
+  async processTemplatedInput(input: string) {
+    for (const [name, template] of this.templates) {
+      if (input.includes(template.pattern)) {
+        const vars = this.extractVariables(input, template);
+        const command = template.generate(vars);
+        return this.processInput(command);
+      }
+    }
+    return this.processInput(input);
+  }
+
+  private extractVariables(input: string, template: CommandTemplate) {
+    // Extract variables from input based on template pattern
+    // Implementation details...
+    return {};
+  }
+}
+
+// Usage example
+const nlsh = new TemplatedNlsh();
+
+nlsh.registerTemplate('backup', {
+  pattern: 'backup {source} to {destination}',
+  variables: ['source', 'destination'],
+  generate: vars => `create a backup of ${vars.source} and save it to ${vars.destination}`
+});
+
+nlsh.processTemplatedInput('backup my-project to /backups/today');
+```
+
+### Event-Driven Operations
+
+Implement event-based command execution:
+
+```typescript
+import { EventEmitter } from 'events';
+
+class EventDrivenNlsh extends Nlsh {
+  private events: EventEmitter;
+
+  constructor() {
+    super();
+    this.events = new EventEmitter();
+    this.setupEventHandlers();
+  }
+
+  private setupEventHandlers() {
+    // Handle system events
+    this.events.on('disk-space-low', async () => {
+      await this.processInput('find and delete temporary files');
+      await this.processInput('show me current disk usage');
+    });
+
+    this.events.on('high-cpu-usage', async () => {
+      await this.processInput('show me top CPU consuming processes');
+      await this.processInput('display system load average');
+    });
+
+    this.events.on('new-device-connected', async device => {
+      await this.processInput(`show me information about device ${device}`);
+    });
+  }
+
+  emitSystemEvent(event: string, data?: any) {
+    this.events.emit(event, data);
+  }
+}
+
+// Usage example
+const nlsh = new EventDrivenNlsh();
+
+// Simulate system events
+setInterval(() => {
+  checkSystemResources().then(metrics => {
+    if (metrics.diskSpace < 10) {
+      nlsh.emitSystemEvent('disk-space-low');
+    }
+    if (metrics.cpuUsage > 90) {
+      nlsh.emitSystemEvent('high-cpu-usage');
+    }
+  });
+}, 300000); // Check every 5 minutes
+```
+
+## Real-World Applications
+
+### DevOps Automation
+
+Create a DevOps assistant for common tasks:
+
+```typescript
+class DevOpsAssistant {
+  private nlsh: Nlsh;
+
+  constructor() {
+    this.nlsh = new Nlsh({
+      trustLevel: 'INTERACTIVE',
+      context: 'devops'
+    });
+  }
+
+  async deployApplication(env: string) {
+    await this.nlsh.processInput(`
+      check if ${env} environment is healthy
+      backup current deployment
+      deploy latest version to ${env}
+      run smoke tests
+      show me deployment logs
+    `);
+  }
+
+  async monitorServices() {
+    await this.nlsh.processInput(`
+      show me status of all services
+      check system resources
+      display recent error logs
+      show me active connections
+    `);
+  }
+
+  async performMaintenance() {
+    await this.nlsh.processInput(`
+      cleanup old docker images
+      remove unused volumes
+      check for system updates
+      display system health report
+    `);
+  }
+}
+```
+
+### System Administration
+
+Implement a system administration interface:
+
+```typescript
+class SystemAdmin {
+  private nlsh: Nlsh;
+
+  constructor() {
+    this.nlsh = new Nlsh({
+      trustLevel: 'AUTONOMOUS',
+      context: 'sysadmin'
+    });
+  }
+
+  async monitorSystem() {
+    const commands = [
+      'show me system load average',
+      'display memory usage',
+      'show disk space usage',
+      'list processes using most CPU',
+      'show network statistics'
+    ];
+
+    const results = [];
+    for (const command of commands) {
+      const result = await this.nlsh.processInput(command);
+      results.push({
+        command,
+        output: result.output
+      });
+    }
+
+    return this.formatReport(results);
+  }
+
+  async manageUsers(action: 'add' | 'remove' | 'modify', userData: any) {
+    const command = this.generateUserCommand(action, userData);
+    return this.nlsh.processInput(command);
+  }
+
+  async backupSystem() {
+    return this.nlsh.processInput(`
+      identify critical system files
+      create timestamped backup
+      compress backup files
+      move backups to secure location
+      verify backup integrity
+    `);
+  }
+}
+```
+
+### Development Workflow
+
+Create a development assistant:
+
+```typescript
+class DevAssistant {
+  private nlsh: Nlsh;
+
+  constructor() {
+    this.nlsh = new Nlsh({
+      trustLevel: 'INTERACTIVE',
+      context: 'development'
+    });
+  }
+
+  async setupProject(projectName: string, template: string) {
+    await this.nlsh.processInput(`
+      create new project ${projectName} using ${template} template
+      initialize git repository
+      install dependencies
+      setup development environment
+    `);
+  }
+
+  async runTests(scope?: string) {
+    const command = scope
+      ? `run tests for ${scope}`
+      : 'run all tests';
+    
+    return this.nlsh.processInput(command);
+  }
+
+  async buildAndDeploy(env: string) {
+    await this.nlsh.processInput(`
+      run linting checks
+      run all tests
+      build project for ${env}
+      deploy to ${env} environment
+    `);
+  }
+}
+```
+
+## Integration Patterns
+
+### Shell Extension
+
+Extend existing shell functionality:
+
+```typescript
+class ExtendedShell {
+  private nlsh: Nlsh;
+  private customCommands: Map<string, Function>;
+
+  constructor() {
+    this.nlsh = new Nlsh();
+    this.customCommands = new Map();
+    this.registerCustomCommands();
+  }
+
+  private registerCustomCommands() {
+    this.customCommands.set('analyze-logs', async () => {
+      await this.nlsh.processInput('find all error logs');
+      await this.nlsh.processInput('extract error patterns');
+      await this.nlsh.processInput('generate error report');
+    });
+
+    this.customCommands.set('health-check', async () => {
+      await this.nlsh.processInput('check system resources');
+      await this.nlsh.processInput('verify service status');
+      await this.nlsh.processInput('test external connections');
+    });
+  }
+
+  async executeCustomCommand(name: string) {
+    const command = this.customCommands.get(name);
+    if (command) {
+      await command();
+    } else {
+      throw new Error(`Unknown command: ${name}`);
+    }
+  }
+}
+```
+
+## Conclusion
+
+These advanced patterns demonstrate the flexibility and power of @brainstack/nlsh in handling complex system operations through natural language. The combination of AI understanding, event handling, and extensible architecture makes it a robust solution for modern terminal interaction.
+
+In the next article, we'll explore testing strategies and automation patterns with @brainstack/nlsh.

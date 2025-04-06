@@ -1,0 +1,255 @@
+## Introduction
+
+Modern applications require robust state management solutions that can handle complex state changes while maintaining code organization and scalability. @brainstack/store provides an elegant solution by combining state management with event-driven programming.
+
+## What is @brainstack/store?
+
+@brainstack/store is a state management package that:
+- Integrates @brainstack/state for state management
+- Incorporates @brainstack/hub for event handling
+- Provides built-in CRUD operations
+- Offers flexible state subscription mechanisms
+
+## Core Concepts
+
+### Store Creation
+
+Creating a store is straightforward:
+
+```typescript
+import { createStore } from '@brainstack/store';
+
+interface AppState {
+  users: Record<string, {
+    id: string;
+    name: string;
+    email: string;
+  }>;
+  settings: {
+    theme: 'light' | 'dark';
+    language: string;
+  };
+}
+
+const initialState: AppState = {
+  users: {},
+  settings: {
+    theme: 'light',
+    language: 'en'
+  }
+};
+
+const store = createStore({
+  initializer: initialState
+});
+```
+
+### State Mutations
+
+Update store state using the mutate method:
+
+```typescript
+// Update settings
+store.mutate(state => ({
+  ...state,
+  settings: {
+    ...state.settings,
+    theme: 'dark'
+  }
+}));
+
+// Add a user
+store.mutate(state => ({
+  ...state,
+  users: {
+    ...state.users,
+    'user-1': {
+      id: 'user-1',
+      name: 'John Doe',
+      email: 'john@example.com'
+    }
+  }
+}));
+```
+
+### State Subscriptions
+
+Subscribe to state changes:
+
+```typescript
+// Subscribe to all state changes
+const unsubscribe = store.subscribe(state => {
+  console.log('State updated:', state);
+});
+
+// Cleanup when done
+unsubscribe();
+```
+
+## CRUD Operations
+
+@brainstack/store provides utilities for creating CRUD operations for both object and array-based state.
+
+### Object-Based CRUD
+
+```typescript
+import { createCRUDObject } from '@brainstack/store';
+
+// Create CRUD operations for users domain
+const usersCRUD = createCRUDObject('users');
+
+// Create a user
+const newUser = {
+  name: 'Alice Brown',
+  email: 'alice@example.com'
+};
+usersCRUD.create(newUser);
+
+// Read a user
+const user = usersCRUD.read({ id: 'user-1' });
+
+// Update a user
+usersCRUD.update({
+  id: 'user-1',
+  name: 'Alice B.',
+  email: 'alice.b@example.com'
+});
+
+// Delete a user
+usersCRUD.delete({ id: 'user-1' });
+
+// List all users
+const allUsers = usersCRUD.list();
+
+// Search users
+const searchResults = usersCRUD.search('Alice');
+```
+
+### Array-Based CRUD
+
+```typescript
+import { createCRUDArray } from '@brainstack/store';
+
+interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+// Create CRUD operations for tasks domain
+const tasksCRUD = createCRUDArray<Task>('tasks');
+
+// Create a task
+const newTask = {
+  title: 'Complete documentation',
+  completed: false
+};
+const taskId = tasksCRUD.create(newTask);
+
+// Read a task
+const task = tasksCRUD.read({ id: taskId });
+
+// Update a task
+tasksCRUD.update({
+  id: taskId,
+  title: 'Complete documentation',
+  completed: true
+});
+
+// Delete a task
+tasksCRUD.delete({ id: taskId });
+
+// List all tasks
+const allTasks = tasksCRUD.list();
+
+// Search tasks
+const incompleteTasks = tasksCRUD.search('complete');
+```
+
+## Best Practices
+
+1. **State Structure**
+   - Use objects for lookup-based data
+   - Use arrays for ordered collections
+   - Keep state normalized
+   - Avoid deeply nested structures
+
+2. **CRUD Operations**
+   - Use createCRUDObject for key-value data
+   - Use createCRUDArray for list data
+   - Keep IDs consistent across operations
+   - Handle errors gracefully
+
+3. **State Updates**
+   - Make immutable updates
+   - Batch related changes
+   - Clean up subscriptions
+   - Validate state changes
+
+4. **Event Handling**
+   - Subscribe to specific state changes
+   - Handle side effects in subscribers
+   - Keep subscribers focused
+   - Unsubscribe when done
+
+## Integration Example
+
+Here's how to integrate @brainstack/store in a React application:
+
+```typescript
+import { createStore } from '@brainstack/store';
+import { useState, useEffect } from 'react';
+
+// Create store hook
+function useStore<T>(store: ReturnType<typeof createStore>) {
+  const [state, setState] = useState(store.getState());
+
+  useEffect(() => {
+    return store.subscribe(setState);
+  }, [store]);
+
+  return state;
+}
+
+// Usage in components
+function UserList() {
+  const state = useStore(store);
+  const users = Object.values(state.users);
+
+  return (
+    <ul>
+      {users.map(user => (
+        <li key={user.id}>
+          {user.name} ({user.email})
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ThemeToggle() {
+  const state = useStore(store);
+
+  const toggleTheme = () => {
+    store.mutate(state => ({
+      ...state,
+      settings: {
+        ...state.settings,
+        theme: state.settings.theme === 'light' ? 'dark' : 'light'
+      }
+    }));
+  };
+
+  return (
+    <button onClick={toggleTheme}>
+      Switch to {state.settings.theme === 'light' ? 'dark' : 'light'} theme
+    </button>
+  );
+}
+```
+
+## Conclusion
+
+@brainstack/store provides a powerful foundation for managing application state with its combination of state management and event handling. Its built-in CRUD utilities make it especially suitable for applications that need to manage collections of data.
+
+In the next article, we'll explore advanced patterns and real-world examples using @brainstack/store.
