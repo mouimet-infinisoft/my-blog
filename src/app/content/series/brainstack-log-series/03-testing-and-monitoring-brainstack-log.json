@@ -1,0 +1,21 @@
+{
+  "title": "Testing and Monitoring with @brainstack/log",
+  "description": "Learn effective strategies for testing logging implementations and monitoring applications using @brainstack/log.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-22",
+  "order": 3,
+  "seriesSlug": "brainstack-log-series",
+  "slug": "testing-and-monitoring-brainstack-log",
+  "tags": [
+    "logging",
+    "testing",
+    "monitoring",
+    "brainstack",
+    "log",
+    "typescript"
+  ],
+  "category": "Testing",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

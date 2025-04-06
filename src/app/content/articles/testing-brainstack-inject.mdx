@@ -1,0 +1,105 @@
+## Introduction
+
+In this article, we will explore how to test your applications using `@brainstack/inject`, including techniques for mocking and swapping dependencies.
+
+## Mocking Dependencies
+
+Mocking dependencies allows you to isolate the unit of code you are testing by replacing real dependencies with mock implementations.
+
+### Example: Mocking a Service
+
+Let's say we have a `DatabaseService` that we want to mock in our tests.
+
+```typescript
+import { Service } from '@brainstack/inject';
+
+@Service()
+class DatabaseService {
+  getData() {
+    return 'Real data from database';
+  }
+}
+```
+
+We can create a mock implementation of `DatabaseService` for testing purposes.
+
+```typescript
+class MockDatabaseService {
+  getData() {
+    return 'Mock data';
+  }
+}
+```
+
+### Using the Mock in Tests
+
+We can use the mock implementation in our tests by registering it with the container.
+
+```typescript
+import { Container } from '@brainstack/inject';
+import { MyClass } from './MyClass'; // The class that depends on DatabaseService
+
+const container = new Container();
+container.register(DatabaseService, new MockDatabaseService());
+
+const myInstance = container.getInstance(MyClass);
+console.log(myInstance.doSomething()); // Output: 'Mock data'
+```
+
+## Swapping Dependencies
+
+Swapping dependencies allows you to replace real implementations with mock or alternative implementations during testing.
+
+### Example: Swapping a Service
+
+Let's say we have a `LoggerService` that we want to swap with a mock implementation in our tests.
+
+```typescript
+import { SingletonService } from '@brainstack/inject';
+
+@SingletonService
+class LoggerService {
+  log(message: string) {
+    console.log(message);
+  }
+}
+```
+
+We can create a mock implementation of `LoggerService` for testing purposes.
+
+```typescript
+class MockLoggerService {
+  log(message: string) {
+    // Do nothing
+  }
+}
+```
+
+### Using the Mock in Tests
+
+We can use the mock implementation in our tests by registering it with the container.
+
+```typescript
+import { Container } from '@brainstack/inject';
+import { MyClass } from './MyClass'; // The class that depends on LoggerService
+
+const container = new Container();
+container.register(LoggerService, new MockLoggerService());
+
+const myInstance = container.getInstance(MyClass);
+myInstance.doSomething(); // No log output
+```
+
+## Resetting the Container
+
+Resetting the container is useful for ensuring a clean state between tests.
+
+```typescript
+container.reset();
+```
+
+## Conclusion
+
+By leveraging mocking and swapping dependencies, you can effectively test your applications using `@brainstack/inject`. These techniques allow you to isolate the unit of code you are testing and ensure that your tests are reliable and maintainable. This concludes our series on `@brainstack/inject`. We hope you found it informative and helpful.
+
+Happy coding!

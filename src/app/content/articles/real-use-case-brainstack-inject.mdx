@@ -1,0 +1,151 @@
+## Introduction
+
+In this article, we will build a real-world application using `@brainstack/inject`, demonstrating its features and benefits in a practical scenario. We will create a simple task management application that allows users to create, update, and delete tasks.
+
+## Step 1: Setting Up the Project
+
+First, let's set up the project. Create a new directory for your project and initialize a new Node.js project.
+
+```bash
+mkdir task-manager
+cd task-manager
+npm init -y
+```
+
+Next, install the necessary dependencies, including `@brainstack/inject`.
+
+```bash
+npm install @brainstack/inject express body-parser
+```
+
+## Step 2: Creating the Task Service
+
+Create a `TaskService` class that will handle the business logic for managing tasks.
+
+```typescript
+import { Service } from '@brainstack/inject'
+
+interface Task {
+  id: number
+  title: 'Building a Real-World Application with @brainstack/inject: A Step-by-Step Tutorial'
+  completed: boolean
+}
+
+@Service()
+class TaskService {
+  private tasks: Task[] = []
+  private nextId = 1
+
+  getAllTasks(): Task[] {
+    return this.tasks
+  }
+
+  getTaskById(id: number): Task | undefined {
+    return this.tasks.find((task) => task.id === id)
+  }
+
+  createTask(title: string): Task {
+    const newTask: Task = { id: this.nextId++, title, completed: false }
+    this.tasks.push(newTask)
+    return newTask
+  }
+
+  updateTask(id: number, title: string, completed: boolean): Task | undefined {
+    const task = this.getTaskById(id)
+    if (task) {
+      task.title = title
+      task.completed = completed
+    }
+    return task
+  }
+
+  deleteTask(id: number): boolean {
+    const index = this.tasks.findIndex((task) => task.id === id)
+    if (index !== -1) {
+      this.tasks.splice(index, 1)
+      return true
+    }
+    return false
+  }
+}
+```
+
+## Step 3: Creating the Express Application
+
+Create an Express application and set up the routes for managing tasks.
+
+```typescript
+import express from 'express'
+import bodyParser from 'body-parser'
+import { Container } from '@brainstack/inject'
+import { TaskService } from './TaskService'
+
+const app = express()
+const container = new Container()
+const taskService = container.getInstance(TaskService)
+
+app.use(bodyParser.json())
+
+app.get('/tasks', (req, res) => {
+  res.json(taskService.getAllTasks())
+})
+
+app.get('/tasks/:id', (req, res) => {
+  const task = taskService.getTaskById(parseInt(req.params.id))
+  if (task) {
+    res.json(task)
+  } else {
+    res.status(404).send('Task not found')
+  }
+})
+
+app.post('/tasks', (req, res) => {
+  const { title } = req.body
+  const newTask = taskService.createTask(title)
+  res.status(201).json(newTask)
+})
+
+app.put('/tasks/:id', (req, res) => {
+  const { title, completed } = req.body
+  const updatedTask = taskService.updateTask(
+    parseInt(req.params.id),
+    title,
+    completed,
+  )
+  if (updatedTask) {
+    res.json(updatedTask)
+  } else {
+    res.status(404).send('Task not found')
+  }
+})
+
+app.delete('/tasks/:id', (req, res) => {
+  const success = taskService.deleteTask(parseInt(req.params.id))
+  if (success) {
+    res.status(204).send()
+  } else {
+    res.status(404).send('Task not found')
+  }
+})
+
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`)
+})
+```
+
+## Step 4: Running the Application
+
+To run the application, use the following command:
+
+```bash
+node index.js
+```
+
+You can now use a tool like Postman or curl to interact with the API and manage tasks.
+
+## Conclusion
+
+In this tutorial, we built a simple task management application using `@brainstack/inject`. We demonstrated how to set up the project, create a service, and use dependency injection to manage dependencies. This practical example shows how `@brainstack/inject` can be used to build real-world applications with ease.
+
+Happy coding!

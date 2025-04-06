@@ -1,27 +1,3 @@
-import { ArticleLayout } from '@/components/ArticleLayout'
-
-export const article = {
-  title: "Testing Event-Driven Systems with @brainstack/hub",
-  description: "Learn comprehensive testing strategies for event-driven systems built with @brainstack/hub, including unit testing, integration testing, and event sequence validation.",
-  author: "Martin Ouimet",
-  date: "2024-01-20",
-  order: 3,
-  seriesSlug: "brainstack-hub-series",
-  slug: "testing-event-driven-systems",
-  tags: ["testing", "event-driven", "brainstack", "hub", "typescript", "unit-testing"],
-  category: "Testing",
-  githubRepo: "",
-  status: "draft",
-  publishDate: "2025-04-05",
-}
-
-export const metadata = {
-  title: article.title,
-  description: article.description,
-}
-
-export default (props) => <ArticleLayout article={article} {...props} />
-
 ## Introduction
 
 Testing event-driven systems presents unique challenges due to their asynchronous nature and complex event interactions. In this article, we'll explore comprehensive testing strategies for applications built with @brainstack/hub.

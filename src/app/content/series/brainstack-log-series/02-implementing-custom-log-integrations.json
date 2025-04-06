@@ -1,0 +1,21 @@
+{
+  "title": "Implementing Custom Log Integrations with @brainstack/log",
+  "description": "Learn how to create custom logging integrations and implement advanced logging patterns using @brainstack/log.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-21",
+  "order": 2,
+  "seriesSlug": "brainstack-log-series",
+  "slug": "implementing-custom-log-integrations",
+  "tags": [
+    "logging",
+    "integrations",
+    "brainstack",
+    "log",
+    "typescript",
+    "patterns"
+  ],
+  "category": "Logging",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}
