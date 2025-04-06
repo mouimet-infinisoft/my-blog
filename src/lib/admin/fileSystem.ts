@@ -360,53 +360,46 @@ export async function createSeriesArticle(
  * @returns The generated MDX content
  */
 function generateArticleMdx(metadata: Partial<Article>, content: string): string {
-  // Build the article object properties one by one
-  const articleProps = [];
+  // Create a clean object with only the properties we want
+  const articleObj: any = {
+    title: metadata.title,
+    description: metadata.description || '',
+    status: metadata.status || 'draft',
+    publishDate: metadata.publishDate || undefined,
+    category: metadata.category || undefined,
+    tags: metadata.tags || [],
+  };
 
-  // Required properties
-  articleProps.push(`  title: "${metadata.title}"`);
-  articleProps.push(`  description: "${metadata.description || ''}"`);
-  articleProps.push(`  status: "${metadata.status || 'draft'}"`);
-
-  // Optional properties
-  if (metadata.publishDate) {
-    articleProps.push(`  publishDate: "${metadata.publishDate}"`);
-  } else {
-    articleProps.push(`  publishDate: undefined`);
-  }
-
-  if (metadata.category) {
-    articleProps.push(`  category: "${metadata.category}"`);
-  } else {
-    articleProps.push(`  category: undefined`);
-  }
-
-  articleProps.push(`  tags: ${JSON.stringify(metadata.tags || [])}`);
-
+  // Add optional properties
   if (metadata.order !== undefined) {
-    articleProps.push(`  order: ${metadata.order}`);
+    articleObj.order = metadata.order;
   }
 
   if (metadata.seriesSlug) {
-    articleProps.push(`  seriesSlug: "${metadata.seriesSlug}"`);
+    articleObj.seriesSlug = metadata.seriesSlug;
   }
 
-  // Handle social media object properly
+  // Add social media if present
   if (metadata.socialMedia) {
-    articleProps.push(`  socialMedia: ${JSON.stringify(metadata.socialMedia)}`);
+    articleObj.socialMedia = metadata.socialMedia;
   }
 
-  // Join all properties with commas
-  const articleObject = articleProps.join(',\n');
+  // Convert the object to a string with proper formatting
+  const articleStr = JSON.stringify(articleObj, null, 2)
+    // Remove quotes from property names
+    .replace(/"([^"]+)":/g, '$1:')
+    // Add quotes to string values that need them
+    .replace(/: "([^"]+)"/g, ': "$1"')
+    // Fix arrays to use square brackets
+    .replace(/\[\n\s+/g, '[')
+    .replace(/\n\s+\]/g, ']');
 
   // Construct the final MDX content
   return `---
 title: "${metadata.title}"
 ---
 
-export const article = {
-${articleObject}
-};
+export const article = ${articleStr};
 
 ${content}
 `;
