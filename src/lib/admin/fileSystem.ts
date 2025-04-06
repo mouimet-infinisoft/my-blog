@@ -393,12 +393,7 @@ function generateArticleMdx(metadata: Partial<Article>, content: string): string
 
   // Handle social media object properly
   if (metadata.socialMedia) {
-    articleProps.push(`  socialMedia: {
-    linkedin: ${metadata.socialMedia.linkedin},
-    twitter: ${metadata.socialMedia.twitter},
-    facebook: ${metadata.socialMedia.facebook},
-    devto: ${metadata.socialMedia.devto}
-  }`);
+    articleProps.push(`  socialMedia: ${JSON.stringify(metadata.socialMedia)}`);
   }
 
   // Join all properties with commas
