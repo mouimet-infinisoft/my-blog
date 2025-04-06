@@ -87,10 +87,18 @@ export default async function SeriesDetailPage({ params }: PageProps) {
 
         <div className="bg-white dark:bg-zinc-800 shadow overflow-hidden rounded-lg">
           <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-            <h2 className="text-lg font-medium">Articles in this Series</h2>
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              {series.articles.length} articles
-            </span>
+            <div className="flex items-center">
+              <h2 className="text-lg font-medium">Articles in this Series</h2>
+              <span className="ml-2 text-sm text-zinc-500 dark:text-zinc-400">
+                {series.articles.length} articles
+              </span>
+            </div>
+            <Link
+              href={`/admin/series/${slug}/articles/new`}
+              className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+            >
+              New Article
+            </Link>
           </div>
           <div className="border-t border-zinc-200 dark:border-zinc-700">
             <ul className="divide-y divide-zinc-200 dark:divide-zinc-700">

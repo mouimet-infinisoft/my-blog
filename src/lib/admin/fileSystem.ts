@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { Article, Series } from '@/lib/types';
+import { Article, Series, ArticleStatus, ArticleWithSlug } from '@/lib/types';
 import { isDevelopment } from '@/lib/environment';
+import slugify from 'slugify';
 
 /**
  * Updates the metadata in an article MDX file
@@ -152,4 +153,228 @@ export async function updateSeriesMetadata(
 
   // Write the updated data back to the file
   fs.writeFileSync(seriesJsonPath, JSON.stringify(updatedSeriesData, null, 2), 'utf8');
+}
+
+/**
+ * Creates a new standalone article
+ *
+ * @param title The article title
+ * @param content The article content
+ * @param metadata Additional article metadata
+ * @returns The slug of the created article
+ */
+export async function createStandaloneArticle(
+  title: string,
+  content: string,
+  metadata: Partial<Article> = {}
+): Promise<string> {
+  // Only allow creation in development mode
+  if (!isDevelopment()) {
+    throw new Error('Article creation is only allowed in development mode');
+  }
+
+  // Generate slug from title
+  const slug = slugify(title, { lower: true, strict: true });
+
+  // Determine the file path
+  const contentDir = path.join(process.cwd(), 'src/app/content');
+  const standaloneDir = path.join(contentDir, 'standalone');
+  const filePath = path.join(standaloneDir, `${slug}.mdx`);
+
+  // Check if file already exists
+  if (fs.existsSync(filePath)) {
+    throw new Error(`Article with slug '${slug}' already exists`);
+  }
+
+  // Create the article metadata
+  const articleMetadata: Partial<Article> = {
+    title,
+    description: metadata.description || '',
+    status: metadata.status || 'draft',
+    publishDate: metadata.publishDate,
+    category: metadata.category,
+    tags: metadata.tags || [],
+    ...metadata
+  };
+
+  // Create the article content
+  const articleContent = generateArticleMdx(articleMetadata, content);
+
+  // Ensure the directory exists
+  if (!fs.existsSync(standaloneDir)) {
+    fs.mkdirSync(standaloneDir, { recursive: true });
+  }
+
+  // Write the file
+  fs.writeFileSync(filePath, articleContent, 'utf8');
+
+  return slug;
+}
+
+/**
+ * Creates a new series
+ *
+ * @param name The series name
+ * @param description The series description
+ * @param metadata Additional series metadata
+ * @returns The slug of the created series
+ */
+export async function createSeries(
+  name: string,
+  description: string,
+  metadata: Partial<Series> = {}
+): Promise<string> {
+  // Only allow creation in development mode
+  if (!isDevelopment()) {
+    throw new Error('Series creation is only allowed in development mode');
+  }
+
+  // Generate slug from name
+  const slug = slugify(name, { lower: true, strict: true });
+
+  // Determine the directory path
+  const contentDir = path.join(process.cwd(), 'src/app/content');
+  const seriesDir = path.join(contentDir, 'series', slug);
+  const seriesJsonPath = path.join(seriesDir, '_series.json');
+
+  // Check if series already exists
+  if (fs.existsSync(seriesDir)) {
+    throw new Error(`Series with slug '${slug}' already exists`);
+  }
+
+  // Create the series metadata
+  const seriesMetadata: Series = {
+    name,
+    description,
+    slug,
+    status: metadata.status || 'draft',
+    publishDate: metadata.publishDate,
+    category: metadata.category,
+    articles: [],
+    releaseSchedule: metadata.releaseSchedule,
+    ...metadata
+  };
+
+  // Ensure the directory exists
+  fs.mkdirSync(seriesDir, { recursive: true });
+
+  // Write the series JSON file
+  fs.writeFileSync(seriesJsonPath, JSON.stringify(seriesMetadata, null, 2), 'utf8');
+
+  return slug;
+}
+
+/**
+ * Creates a new article in a series
+ *
+ * @param seriesSlug The series slug
+ * @param title The article title
+ * @param content The article content
+ * @param order The article order in the series
+ * @param metadata Additional article metadata
+ * @returns The slug of the created article
+ */
+export async function createSeriesArticle(
+  seriesSlug: string,
+  title: string,
+  content: string,
+  order: number,
+  metadata: Partial<Article> = {}
+): Promise<string> {
+  // Only allow creation in development mode
+  if (!isDevelopment()) {
+    throw new Error('Article creation is only allowed in development mode');
+  }
+
+  // Generate slug from title
+  const slug = slugify(title, { lower: true, strict: true });
+
+  // Determine the directory path
+  const contentDir = path.join(process.cwd(), 'src/app/content');
+  const seriesDir = path.join(contentDir, 'series', seriesSlug);
+  const seriesJsonPath = path.join(seriesDir, '_series.json');
+
+  // Check if series exists
+  if (!fs.existsSync(seriesDir)) {
+    throw new Error(`Series with slug '${seriesSlug}' not found`);
+  }
+
+  // Read the series JSON file
+  const seriesData = JSON.parse(fs.readFileSync(seriesJsonPath, 'utf8')) as Series;
+
+  // Check if article with this slug already exists in the series
+  if (seriesData.articles.some(article => article.slug === slug)) {
+    throw new Error(`Article with slug '${slug}' already exists in series '${seriesSlug}'`);
+  }
+
+  // Create the article metadata
+  const articleMetadata: Partial<Article> = {
+    title,
+    description: metadata.description || '',
+    status: metadata.status || 'draft',
+    publishDate: metadata.publishDate,
+    category: metadata.category || seriesData.category,
+    tags: metadata.tags || [],
+    order,
+    seriesSlug,
+    ...metadata
+  };
+
+  // Create the article content
+  const articleContent = generateArticleMdx(articleMetadata, content);
+
+  // Generate the filename with order prefix
+  const paddedOrder = String(order).padStart(2, '0');
+  const fileName = `${paddedOrder}-${slug}.mdx`;
+  const filePath = path.join(seriesDir, fileName);
+
+  // Write the file
+  fs.writeFileSync(filePath, articleContent, 'utf8');
+
+  // Update the series JSON file with the new article
+  seriesData.articles.push({
+    title,
+    slug,
+    description: articleMetadata.description || '',
+    status: articleMetadata.status || 'draft',
+    publishDate: articleMetadata.publishDate,
+    order,
+    author: 'Admin', // Default author
+    date: new Date().toISOString().split('T')[0], // Today's date
+  } as ArticleWithSlug);
+
+  // Sort articles by order
+  seriesData.articles.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // Write the updated series JSON file
+  fs.writeFileSync(seriesJsonPath, JSON.stringify(seriesData, null, 2), 'utf8');
+
+  return slug;
+}
+
+/**
+ * Generates MDX content for an article
+ *
+ * @param metadata The article metadata
+ * @param content The article content
+ * @returns The generated MDX content
+ */
+function generateArticleMdx(metadata: Partial<Article>, content: string): string {
+  return `---
+title: "${metadata.title}"
+---
+
+export const article = {
+  title: "${metadata.title}",
+  description: "${metadata.description || ''}",
+  status: "${metadata.status || 'draft'}",
+  publishDate: ${metadata.publishDate ? `"${metadata.publishDate}"` : 'undefined'},
+  category: ${metadata.category ? `"${metadata.category}"` : 'undefined'},
+  tags: ${JSON.stringify(metadata.tags || [])},
+  ${metadata.order !== undefined ? `order: ${metadata.order},` : ''}
+  ${metadata.seriesSlug ? `seriesSlug: "${metadata.seriesSlug}",` : ''}
+};
+
+${content}
+`;
 }
