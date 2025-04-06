@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleWithSlug, ArticleStatus } from '@/lib/types';
+import { ArticleWithSlug, ArticleStatus, Series } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
 interface ArticleFormProps {
   article: ArticleWithSlug;
+  series?: Series;
   onSave: (data: Partial<ArticleWithSlug>) => Promise<void>;
 }
 
-export function ArticleForm({ article, onSave }: ArticleFormProps) {
+export function ArticleForm({ article, series, onSave }: ArticleFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     title: article.title,
@@ -22,7 +23,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -30,19 +31,19 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       [name]: value,
     }));
   };
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       // Process tags
       const tags = formData.tags
         ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : undefined;
-      
+
       // Prepare data for saving
       const dataToSave = {
         title: formData.title,
@@ -52,7 +53,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
         tags,
         category: formData.category || undefined,
       };
-      
+
       await onSave(dataToSave);
       setSuccess(true);
       router.refresh(); // Refresh the page to show updated data
@@ -62,7 +63,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -70,13 +71,13 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           <p className="text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-50 border-l-4 border-green-500 p-4 dark:bg-green-900/20">
           <p className="text-green-700 dark:text-green-400">Article updated successfully!</p>
         </div>
       )}
-      
+
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Title
@@ -91,7 +92,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Description
@@ -105,7 +106,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="status" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Status
@@ -124,10 +125,15 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           <option value="featured">Featured</option>
         </select>
       </div>
-      
+
       <div>
         <label htmlFor="publishDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Publish Date
+          {series?.releaseSchedule?.startDate && article.status === 'scheduled' && (
+            <span className="ml-2 text-xs text-teal-600 dark:text-teal-400">
+              (Set by series schedule)
+            </span>
+          )}
         </label>
         <input
           type="date"
@@ -139,9 +145,18 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           Required for scheduled content
+          {series?.releaseSchedule?.startDate && article.status === 'scheduled' && (
+            <>
+              <br />
+              <span className="text-teal-600 dark:text-teal-400">
+                This date was automatically set based on the series schedule.
+                You can override it manually if needed.
+              </span>
+            </>
+          )}
         </p>
       </div>
-      
+
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Category
@@ -155,7 +170,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="tags" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Tags
@@ -173,7 +188,7 @@ export function ArticleForm({ article, onSave }: ArticleFormProps) {
           Comma-separated list of tags
         </p>
       </div>
-      
+
       <div className="flex justify-end">
         <button
           type="submit"
