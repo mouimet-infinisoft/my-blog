@@ -7,24 +7,28 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: Request) {
   try {
     const { email, name } = await request.json();
-    
+
     // Validate email
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
-    
+
+    // Create a default audience ID for testing
+    const defaultAudienceId = 'default';
+
     // Add subscriber to Resend contacts
     const { data, error } = await resend.contacts.create({
+      audienceId: defaultAudienceId,
       email,
       firstName: name || undefined,
       unsubscribed: false,
     });
-    
+
     if (error) {
       console.error('Resend API error:', error);
       return NextResponse.json({ error: 'Failed to add subscriber' }, { status: 500 });
     }
-    
+
     // Send welcome email
     await resend.emails.send({
       from: `Infinisoft Blog <${process.env.FROM_EMAIL}>`,
@@ -103,7 +107,7 @@ export async function POST(request: Request) {
         </html>
       `,
     });
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Subscription error:', error);

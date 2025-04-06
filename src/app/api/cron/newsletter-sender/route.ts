@@ -9,93 +9,90 @@ export async function GET(request: Request) {
   // Verify cron secret to ensure this is called by Vercel
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
-  
+
   if (secret !== process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Get all published content
     const articles = await getAllArticles();
     const series = await getAllSeries();
-    
+
     // Filter for content published today
-    const todaysArticles = articles.filter(article => 
+    const todaysArticles = articles.filter(article =>
       article.date === today && article.status === 'published'
     );
-    
-    const todaysSeries = series.filter(s => 
+
+    const todaysSeries = series.filter(s =>
       s.articles[0]?.date === today && s.status === 'published'
     );
-    
+
     // If no content published today, exit early
     if (todaysArticles.length === 0 && todaysSeries.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No content published today' 
+      return NextResponse.json({
+        success: true,
+        message: 'No content published today'
       });
     }
-    
-    // Get all subscribers from Resend
-    const { data: audienceData } = await resend.audiences.list();
-    if (!audienceData || audienceData.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No audiences found' 
-      });
-    }
-    
-    // Get the default audience
-    const defaultAudience = audienceData[0];
-    
-    // Get contacts from the audience
-    const { data: contactsData } = await resend.contacts.list({ audienceId: defaultAudience.id });
-    if (!contactsData || contactsData.data.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No subscribers found' 
-      });
-    }
-    
-    // Extract subscriber emails
-    const subscribers = contactsData.data.filter(contact => !contact.unsubscribed);
-    
-    if (subscribers.length === 0) {
-      return NextResponse.json({ 
-        success: true, 
-        message: 'No active subscribers found' 
-      });
-    }
-    
-    // Generate email content
-    const emailSubject = `New Content on Infinisoft Blog - ${today}`;
-    const emailHtml = generateEmailContent(todaysArticles, todaysSeries);
-    
-    // Send batch email using Resend
-    const { data, error } = await resend.emails.send({
-      from: `Infinisoft Blog <${process.env.FROM_EMAIL}>`,
-      to: process.env.FROM_EMAIL || '', // Send to yourself
-      bcc: subscribers.map(sub => sub.email), // BCC all subscribers
-      subject: emailSubject,
-      html: emailHtml,
-    });
-    
-    if (error) {
-      console.error('Resend API error:', error);
-      return NextResponse.json({ error: 'Failed to send newsletter' }, { status: 500 });
-    }
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: `Newsletter sent to ${subscribers.length} subscribers`,
-      contentCount: {
-        articles: todaysArticles.length,
-        series: todaysSeries.length
+
+    try {
+      // Create a default audience ID for testing
+      const defaultAudienceId = 'default';
+
+      // Get all contacts from Resend
+      const contactsResponse = await resend.contacts.list({ audienceId: defaultAudienceId });
+
+      if (!contactsResponse.data || !contactsResponse.data.data || contactsResponse.data.data.length === 0) {
+        return NextResponse.json({
+          success: true,
+          message: 'No subscribers found'
+        });
       }
-    });
+
+      // Extract active subscriber emails
+      const subscribers = contactsResponse.data.data.filter(contact => !contact.unsubscribed);
+
+      if (subscribers.length === 0) {
+        return NextResponse.json({
+          success: true,
+          message: 'No active subscribers found'
+        });
+      }
+
+      // Generate email content
+      const emailSubject = `New Content on Infinisoft Blog - ${today}`;
+      const emailHtml = generateEmailContent(todaysArticles, todaysSeries);
+
+      // Send batch email using Resend
+      const { data, error } = await resend.emails.send({
+        from: `Infinisoft Blog <${process.env.FROM_EMAIL}>`,
+        to: process.env.FROM_EMAIL || '', // Send to yourself
+        bcc: subscribers.map(sub => sub.email), // BCC all subscribers
+        subject: emailSubject,
+        html: emailHtml,
+      });
+
+      if (error) {
+        console.error('Resend API error:', error);
+        return NextResponse.json({ error: 'Failed to send newsletter' }, { status: 500 });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Newsletter sent to ${subscribers.length} subscribers`,
+        contentCount: {
+          articles: todaysArticles.length,
+          series: todaysSeries.length
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return NextResponse.json({ error: 'Failed to fetch contacts' }, { status: 500 });
+    }
   } catch (error) {
     console.error('Newsletter sending error:', error);
     return NextResponse.json({ error: 'Failed to process newsletter' }, { status: 500 });
@@ -166,7 +163,7 @@ function generateEmailContent(articles: any[], series: any[]) {
         </div>
         <div class="content">
           <p>We're excited to share our latest content with you:</p>
-          
+
           ${articles.length > 0 ? `
             <h2>New Articles</h2>
             ${articles.map(article => `
@@ -177,7 +174,7 @@ function generateEmailContent(articles: any[], series: any[]) {
               </div>
             `).join('')}
           ` : ''}
-          
+
           ${series.length > 0 ? `
             <h2>New Series</h2>
             ${series.map(series => `
@@ -188,7 +185,7 @@ function generateEmailContent(articles: any[], series: any[]) {
               </div>
             `).join('')}
           ` : ''}
-          
+
           <p>Visit our blog at <a href="${process.env.SITE_URL}">${process.env.SITE_URL}</a> to explore more content.</p>
           <p>Thank you for subscribing to our newsletter!</p>
           <p>Best regards,<br>The Infinisoft Team</p>
