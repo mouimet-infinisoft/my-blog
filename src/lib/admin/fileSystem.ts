@@ -360,25 +360,57 @@ export async function createSeriesArticle(
  * @returns The generated MDX content
  */
 function generateArticleMdx(metadata: Partial<Article>, content: string): string {
+  // Build the article object properties one by one
+  const articleProps = [];
+
+  // Required properties
+  articleProps.push(`  title: "${metadata.title}"`);
+  articleProps.push(`  description: "${metadata.description || ''}"`);
+  articleProps.push(`  status: "${metadata.status || 'draft'}"`);
+
+  // Optional properties
+  if (metadata.publishDate) {
+    articleProps.push(`  publishDate: "${metadata.publishDate}"`);
+  } else {
+    articleProps.push(`  publishDate: undefined`);
+  }
+
+  if (metadata.category) {
+    articleProps.push(`  category: "${metadata.category}"`);
+  } else {
+    articleProps.push(`  category: undefined`);
+  }
+
+  articleProps.push(`  tags: ${JSON.stringify(metadata.tags || [])}`);
+
+  if (metadata.order !== undefined) {
+    articleProps.push(`  order: ${metadata.order}`);
+  }
+
+  if (metadata.seriesSlug) {
+    articleProps.push(`  seriesSlug: "${metadata.seriesSlug}"`);
+  }
+
+  // Handle social media object properly
+  if (metadata.socialMedia) {
+    articleProps.push(`  socialMedia: {
+    linkedin: ${metadata.socialMedia.linkedin},
+    twitter: ${metadata.socialMedia.twitter},
+    facebook: ${metadata.socialMedia.facebook},
+    devto: ${metadata.socialMedia.devto}
+  }`);
+  }
+
+  // Join all properties with commas
+  const articleObject = articleProps.join(',\n');
+
+  // Construct the final MDX content
   return `---
 title: "${metadata.title}"
 ---
 
 export const article = {
-  title: "${metadata.title}",
-  description: "${metadata.description || ''}",
-  status: "${metadata.status || 'draft'}",
-  publishDate: ${metadata.publishDate ? `"${metadata.publishDate}"` : 'undefined'},
-  category: ${metadata.category ? `"${metadata.category}"` : 'undefined'},
-  tags: ${JSON.stringify(metadata.tags || [])},
-  ${metadata.order !== undefined ? `order: ${metadata.order},` : ''}
-  ${metadata.seriesSlug ? `seriesSlug: "${metadata.seriesSlug}",` : ''}
-  ${metadata.socialMedia ? `socialMedia: {
-    linkedin: ${metadata.socialMedia.linkedin},
-    twitter: ${metadata.socialMedia.twitter},
-    facebook: ${metadata.socialMedia.facebook},
-    devto: ${metadata.socialMedia.devto},
-  },` : ''}
+${articleObject}
 };
 
 ${content}
