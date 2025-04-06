@@ -1,4 +1,7 @@
 import { getAllSeries } from '@/lib/content';
+import { SeriesPlanner } from '@/components/admin/SeriesPlanner';
+import { updateSeriesSchedule } from '@/lib/admin/batchUpdate';
+import { ReleaseSchedule } from '@/lib/types';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -12,17 +15,27 @@ export const metadata = {
   title: 'Series Details',
 };
 
+// Server action for saving the schedule
+async function saveSchedule(seriesSlug: string, schedule: ReleaseSchedule, applyToArticles: boolean) {
+  'use server';
+
+  await updateSeriesSchedule(seriesSlug, schedule, applyToArticles);
+}
+
 export default async function SeriesDetailPage({ params }: PageProps) {
   const { slug } = params;
-  
+
   try {
     const allSeries = await getAllSeries();
     const series = allSeries.find(s => s.slug === slug);
-    
+
     if (!series) {
       return notFound();
     }
-    
+
+    // Create a bound server action for this series
+    const handleSaveSchedule = saveSchedule.bind(null, slug);
+
     return (
       <div>
         <div className="flex justify-between items-center mb-6">
@@ -34,7 +47,12 @@ export default async function SeriesDetailPage({ params }: PageProps) {
             Edit Series
           </Link>
         </div>
-        
+
+        {/* Series Planner */}
+        <div className="mb-8">
+          <SeriesPlanner series={series} onSave={handleSaveSchedule} />
+        </div>
+
         <div className="bg-white dark:bg-zinc-800 shadow overflow-hidden rounded-lg mb-8">
           <div className="px-4 py-5 sm:px-6">
             <h2 className="text-lg font-medium">Series Information</h2>
@@ -66,7 +84,7 @@ export default async function SeriesDetailPage({ params }: PageProps) {
             </dl>
           </div>
         </div>
-        
+
         <div className="bg-white dark:bg-zinc-800 shadow overflow-hidden rounded-lg">
           <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
             <h2 className="text-lg font-medium">Articles in this Series</h2>
@@ -89,7 +107,7 @@ export default async function SeriesDetailPage({ params }: PageProps) {
                         </Link>
                       </h3>
                       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        Status: {article.status || 'Not set'} • 
+                        Status: {article.status || 'Not set'} •
                         Publish Date: {article.publishDate || 'Not set'}
                       </p>
                     </div>
