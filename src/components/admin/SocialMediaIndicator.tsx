@@ -11,7 +11,7 @@ interface SocialMediaIndicatorProps {
 export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIndicatorProps) {
   if (!socialMedia) return null;
 
-  const hasAnyTarget = Object.values(socialMedia).some(Boolean);
+  const hasAnyTarget = socialMedia.linkedin || socialMedia.twitter || socialMedia.facebook || socialMedia.devto;
   if (!hasAnyTarget) return null;
 
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
@@ -28,7 +28,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
           </span>
         </Tooltip>
       )}
-      
+
       {socialMedia.twitter && (
         <Tooltip content="Twitter">
           <span className="text-[#1DA1F2]">
@@ -38,7 +38,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
           </span>
         </Tooltip>
       )}
-      
+
       {socialMedia.facebook && (
         <Tooltip content="Facebook">
           <span className="text-[#1877F2]">
@@ -48,7 +48,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
           </span>
         </Tooltip>
       )}
-      
+
       {socialMedia.devto && (
         <Tooltip content="DEV.to">
           <span className="text-zinc-800 dark:text-zinc-200">

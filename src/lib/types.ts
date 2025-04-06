@@ -6,10 +6,10 @@ export interface ReleaseSchedule {
 }
 
 export interface SocialMediaTargets {
-  linkedin?: boolean;
-  twitter?: boolean;
-  facebook?: boolean;
-  devto?: boolean;
+  linkedin: boolean;
+  twitter: boolean;
+  facebook: boolean;
+  devto: boolean;
 }
 
 export interface Article {
