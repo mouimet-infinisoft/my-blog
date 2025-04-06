@@ -1,16 +1,18 @@
-import { ArticleLayout } from '@/components/ArticleLayout'
+---
+title: "Understanding Event-Driven Architecture with @brainstack/hub"
+---
 
 export const article = {
   title: "Understanding Event-Driven Architecture with @brainstack/hub",
-  description: 'Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.',
-  author: 'Martin Ouimet',
-  date: '2025-04-01',
+  description: "Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.",
+  author: "Martin Ouimet",
+  date: "2025-04-01",
   order: 1,
-  seriesSlug: 'brainstack-hub-series',
-  slug: 'understanding-event-hub',
-  tags: ['event-driven', 'architecture', 'brainstack', 'hub', 'typescript'],
+  seriesSlug: "brainstack-hub-series",
+  slug: "understanding-event-hub",
+  tags: ["event-driven", "architecture", "brainstack", "hub", "typescript"],
   category: "Architecture",
-  githubRepo: '',
+  githubRepo: "",
   status: "draft",
   publishDate: "2025-04-05",
   socialMedia: {
@@ -19,14 +21,13 @@ export const article = {
     facebook: false,
     devto: false
   }
-}
+};
 
-export const metadata = {
-  title: "Understanding Event-Driven Architecture with @brainstack/hub",
-  description: 'Deep dive into event-driven architecture and how @brainstack/hub enables scalable, decoupled communication in modern applications.'
-}
+import { ArticleLayout } from '@/components/ArticleLayout'
 
-export default (props) => <ArticleLayout article={article} {...props} />
+export default function MDXPage(props) {
+  return <ArticleLayout article={article} {...props} />
+}
 
 ## Introduction
 
