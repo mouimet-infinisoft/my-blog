@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleWithSlug, ArticleStatus, Series } from '@/lib/types';
+import { ArticleWithSlug, ArticleStatus, Series, SocialMediaTargets } from '@/lib/types';
+import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 
 interface ArticleFormProps {
@@ -19,6 +20,12 @@ export function ArticleForm({ article, series, onSave }: ArticleFormProps) {
     publishDate: article.publishDate || '',
     tags: article.tags?.join(', ') || '',
     category: article.category || '',
+    socialMedia: article.socialMedia || {
+      linkedin: false,
+      twitter: false,
+      facebook: false,
+      devto: false,
+    },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +36,13 @@ export function ArticleForm({ article, series, onSave }: ArticleFormProps) {
     setFormData(prev => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+    setFormData(prev => ({
+      ...prev,
+      socialMedia,
     }));
   };
 
@@ -52,6 +66,7 @@ export function ArticleForm({ article, series, onSave }: ArticleFormProps) {
         publishDate: formData.publishDate || undefined,
         tags,
         category: formData.category || undefined,
+        socialMedia: formData.socialMedia,
       };
 
       await onSave(dataToSave);
@@ -186,6 +201,19 @@ export function ArticleForm({ article, series, onSave }: ArticleFormProps) {
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           Comma-separated list of tags
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Share on Social Media
+        </label>
+        <SocialMediaSelector
+          value={formData.socialMedia}
+          onChange={handleSocialMediaChange}
+        />
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Select platforms where this content should be shared when published
         </p>
       </div>
 

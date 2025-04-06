@@ -373,6 +373,7 @@ export const article = {
   tags: ${JSON.stringify(metadata.tags || [])},
   ${metadata.order !== undefined ? `order: ${metadata.order},` : ''}
   ${metadata.seriesSlug ? `seriesSlug: "${metadata.seriesSlug}",` : ''}
+  ${metadata.socialMedia ? `socialMedia: ${JSON.stringify(metadata.socialMedia)},` : ''}
 };
 
 ${content}

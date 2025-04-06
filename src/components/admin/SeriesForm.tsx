@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Series, ArticleStatus } from '@/lib/types';
+import { Series, ArticleStatus, SocialMediaTargets } from '@/lib/types';
+import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 
 interface SeriesFormProps {
@@ -20,6 +21,12 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
     releaseSchedule: {
       frequency: series.releaseSchedule?.frequency || 'weekly',
       startDate: series.releaseSchedule?.startDate || '',
+    },
+    socialMedia: series.socialMedia || {
+      linkedin: false,
+      twitter: false,
+      facebook: false,
+      devto: false,
     },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +53,13 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
     }
   };
 
+  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+    setFormData(prev => ({
+      ...prev,
+      socialMedia,
+    }));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -60,6 +74,7 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
         status: formData.status as ArticleStatus,
         publishDate: formData.publishDate || undefined,
         category: formData.category || undefined,
+        socialMedia: formData.socialMedia,
       };
 
       // Only include releaseSchedule if startDate is provided
@@ -171,6 +186,19 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
           onChange={handleChange}
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Share on Social Media
+        </label>
+        <SocialMediaSelector
+          value={formData.socialMedia}
+          onChange={handleSocialMediaChange}
+        />
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Select platforms where this content should be shared when published
+        </p>
       </div>
 
       <div className="border-t border-zinc-200 dark:border-zinc-700 pt-6">

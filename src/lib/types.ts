@@ -5,6 +5,13 @@ export interface ReleaseSchedule {
   startDate: string;
 }
 
+export interface SocialMediaTargets {
+  linkedin?: boolean;
+  twitter?: boolean;
+  facebook?: boolean;
+  devto?: boolean;
+}
+
 export interface Article {
   title: string
   description: string
@@ -18,6 +25,7 @@ export interface Article {
   isStandalone?: boolean
   status?: ArticleStatus
   publishDate?: string
+  socialMedia?: SocialMediaTargets
 }
 
 export interface ArticleWithSlug extends Article {
@@ -35,6 +43,7 @@ export interface Series {
   status?: ArticleStatus
   publishDate?: string
   releaseSchedule?: ReleaseSchedule
+  socialMedia?: SocialMediaTargets
 }
 
 export interface ArticleNavigation {

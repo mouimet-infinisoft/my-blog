@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleStatus } from '@/lib/types';
+import { ArticleStatus, SocialMediaTargets } from '@/lib/types';
+import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 
 interface NewSeriesFormProps {
@@ -15,6 +16,7 @@ interface NewSeriesFormProps {
       frequency: 'weekly' | 'biweekly' | 'monthly';
       startDate?: string;
     };
+    socialMedia?: SocialMediaTargets;
   }) => Promise<void>;
 }
 
@@ -30,14 +32,20 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
       frequency: 'weekly' as 'weekly' | 'biweekly' | 'monthly',
       startDate: '',
     },
+    socialMedia: {
+      linkedin: false,
+      twitter: false,
+      facebook: false,
+      devto: false,
+    },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     if (name.startsWith('releaseSchedule.')) {
       const field = name.split('.')[1];
       setFormData(prev => ({
@@ -54,19 +62,26 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
       }));
     }
   };
-  
+
+  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+    setFormData(prev => ({
+      ...prev,
+      socialMedia,
+    }));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name.trim()) {
       setError('Name is required');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       // Prepare data for saving
       const dataToSave: any = {
@@ -75,8 +90,9 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
         status: formData.status,
         publishDate: formData.publishDate || undefined,
         category: formData.category || undefined,
+        socialMedia: formData.socialMedia,
       };
-      
+
       // Only include releaseSchedule if startDate is provided
       if (formData.releaseSchedule.startDate) {
         dataToSave.releaseSchedule = {
@@ -84,10 +100,10 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           startDate: formData.releaseSchedule.startDate,
         };
       }
-      
+
       await onSave(dataToSave);
       setSuccess(true);
-      
+
       // Reset form after successful save
       setFormData({
         name: '',
@@ -99,8 +115,14 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           frequency: 'weekly',
           startDate: '',
         },
+        socialMedia: {
+          linkedin: false,
+          twitter: false,
+          facebook: false,
+          devto: false,
+        },
       });
-      
+
       router.refresh(); // Refresh the page to show updated data
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while saving');
@@ -108,7 +130,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -116,13 +138,13 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           <p className="text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-50 border-l-4 border-green-500 p-4 dark:bg-green-900/20">
           <p className="text-green-700 dark:text-green-400">Series created successfully!</p>
         </div>
       )}
-      
+
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Name
@@ -137,7 +159,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Description
@@ -151,7 +173,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="status" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -171,7 +193,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
             <option value="featured">Featured</option>
           </select>
         </div>
-        
+
         <div>
           <label htmlFor="publishDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Publish Date
@@ -189,7 +211,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           </p>
         </div>
       </div>
-      
+
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Category
@@ -203,10 +225,23 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
+      <div>
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          Share on Social Media
+        </label>
+        <SocialMediaSelector
+          value={formData.socialMedia}
+          onChange={handleSocialMediaChange}
+        />
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Select platforms where this content should be shared when published
+        </p>
+      </div>
+
       <div className="border-t border-zinc-200 dark:border-zinc-700 pt-6">
         <h3 className="text-lg font-medium mb-4">Release Schedule</h3>
-        
+
         <div className="space-y-4">
           <div>
             <label htmlFor="releaseSchedule.frequency" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -224,7 +259,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
               <option value="monthly">Monthly</option>
             </select>
           </div>
-          
+
           <div>
             <label htmlFor="releaseSchedule.startDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
               Start Date
@@ -243,7 +278,7 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-end">
         <button
           type="submit"
