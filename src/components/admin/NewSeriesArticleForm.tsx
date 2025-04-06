@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleStatus, Series, SocialMediaTargets } from '@/lib/types';
+import { ArticleStatus, Series } from '@/lib/types';
 import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 import { MDXEditor } from './MDXEditor';
@@ -17,7 +17,10 @@ interface NewSeriesArticleFormProps {
     category?: string;
     tags?: string[];
     order: number;
-    socialMedia?: SocialMediaTargets;
+    shareOnLinkedin?: boolean;
+    shareOnTwitter?: boolean;
+    shareOnFacebook?: boolean;
+    shareOnDevto?: boolean;
   }) => Promise<void>;
 }
 
@@ -38,12 +41,10 @@ export function NewSeriesArticleForm({ series, onSave }: NewSeriesArticleFormPro
     category: series.category || '',
     tags: '',
     order: nextOrder,
-    socialMedia: series.socialMedia || {
-      linkedin: false,
-      twitter: false,
-      facebook: false,
-      devto: false,
-    },
+    shareOnLinkedin: series.shareOnLinkedin || false,
+    shareOnTwitter: series.shareOnTwitter || false,
+    shareOnFacebook: series.shareOnFacebook || false,
+    shareOnDevto: series.shareOnDevto || false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,10 +66,13 @@ export function NewSeriesArticleForm({ series, onSave }: NewSeriesArticleFormPro
     }));
   };
 
-  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+  const handleSocialMediaChange = (platform: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      socialMedia,
+      [platform === 'linkedin' ? 'shareOnLinkedin' :
+       platform === 'twitter' ? 'shareOnTwitter' :
+       platform === 'facebook' ? 'shareOnFacebook' :
+       'shareOnDevto']: checked,
     }));
   };
 
@@ -105,7 +109,10 @@ export function NewSeriesArticleForm({ series, onSave }: NewSeriesArticleFormPro
         tags,
         category: formData.category || undefined,
         order: formData.order,
-        socialMedia: formData.socialMedia,
+        shareOnLinkedin: formData.shareOnLinkedin,
+        shareOnTwitter: formData.shareOnTwitter,
+        shareOnFacebook: formData.shareOnFacebook,
+        shareOnDevto: formData.shareOnDevto,
       };
 
       await onSave(dataToSave);
@@ -121,12 +128,10 @@ export function NewSeriesArticleForm({ series, onSave }: NewSeriesArticleFormPro
         category: series.category || '',
         tags: '',
         order: formData.order + 1, // Increment order for next article
-        socialMedia: series.socialMedia || {
-          linkedin: false,
-          twitter: false,
-          facebook: false,
-          devto: false,
-        },
+        shareOnLinkedin: series.shareOnLinkedin || false,
+        shareOnTwitter: series.shareOnTwitter || false,
+        shareOnFacebook: series.shareOnFacebook || false,
+        shareOnDevto: series.shareOnDevto || false,
       });
 
       router.refresh(); // Refresh the page to show updated data
@@ -289,7 +294,10 @@ export function NewSeriesArticleForm({ series, onSave }: NewSeriesArticleFormPro
           Share on Social Media
         </label>
         <SocialMediaSelector
-          value={formData.socialMedia}
+          linkedin={formData.shareOnLinkedin}
+          twitter={formData.shareOnTwitter}
+          facebook={formData.shareOnFacebook}
+          devto={formData.shareOnDevto}
           onChange={handleSocialMediaChange}
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

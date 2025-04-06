@@ -1,0 +1,30 @@
+---
+title: "Test Social Media Integration"
+---
+
+export const article = {
+  title: "Test Social Media Integration",
+  description: "A test article for social media integration",
+  author: "Martin Ouimet",
+  date: "2025-05-01",
+  tags: ["test", "social-media"],
+  category: "Test",
+  githubRepo: "",
+  status: "draft",
+  publishDate: "2025-05-05",
+  isStandalone: true,
+  shareOnLinkedin: true,
+  shareOnTwitter: true,
+  shareOnFacebook: false,
+  shareOnDevto: true
+};
+
+import { ArticleLayout } from '@/components/ArticleLayout'
+
+export default function MDXPage(props) {
+  return <ArticleLayout article={article} {...props} />
+}
+
+## Test Article
+
+This is a test article for social media integration.

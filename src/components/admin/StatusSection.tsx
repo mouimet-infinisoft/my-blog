@@ -46,7 +46,13 @@ export function StatusSection({ title, articles, series }: StatusSectionProps) {
                       {s.articles.length}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <SocialMediaIndicator socialMedia={s.socialMedia} size="sm" />
+                      <SocialMediaIndicator
+                        shareOnLinkedin={s.shareOnLinkedin}
+                        shareOnTwitter={s.shareOnTwitter}
+                        shareOnFacebook={s.shareOnFacebook}
+                        shareOnDevto={s.shareOnDevto}
+                        size="sm"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <Link href={`/admin/series/${s.slug}/edit`} className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
@@ -102,7 +108,13 @@ export function StatusSection({ title, articles, series }: StatusSectionProps) {
                       {article.publishDate || 'Not set'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <SocialMediaIndicator socialMedia={article.socialMedia} size="sm" />
+                      <SocialMediaIndicator
+                        shareOnLinkedin={article.shareOnLinkedin}
+                        shareOnTwitter={article.shareOnTwitter}
+                        shareOnFacebook={article.shareOnFacebook}
+                        shareOnDevto={article.shareOnDevto}
+                        size="sm"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <Link

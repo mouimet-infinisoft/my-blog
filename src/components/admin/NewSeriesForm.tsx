@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleStatus, SocialMediaTargets } from '@/lib/types';
+import { ArticleStatus } from '@/lib/types';
 import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 
@@ -16,7 +16,10 @@ interface NewSeriesFormProps {
       frequency: 'weekly' | 'biweekly' | 'monthly';
       startDate?: string;
     };
-    socialMedia?: SocialMediaTargets;
+    shareOnLinkedin?: boolean;
+    shareOnTwitter?: boolean;
+    shareOnFacebook?: boolean;
+    shareOnDevto?: boolean;
   }) => Promise<void>;
 }
 
@@ -32,12 +35,10 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
       frequency: 'weekly' as 'weekly' | 'biweekly' | 'monthly',
       startDate: '',
     },
-    socialMedia: {
-      linkedin: false,
-      twitter: false,
-      facebook: false,
-      devto: false,
-    },
+    shareOnLinkedin: false,
+    shareOnTwitter: false,
+    shareOnFacebook: false,
+    shareOnDevto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,10 +64,13 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
     }
   };
 
-  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+  const handleSocialMediaChange = (platform: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      socialMedia,
+      [platform === 'linkedin' ? 'shareOnLinkedin' :
+       platform === 'twitter' ? 'shareOnTwitter' :
+       platform === 'facebook' ? 'shareOnFacebook' :
+       'shareOnDevto']: checked,
     }));
   };
 
@@ -90,7 +94,10 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
         status: formData.status,
         publishDate: formData.publishDate || undefined,
         category: formData.category || undefined,
-        socialMedia: formData.socialMedia,
+        shareOnLinkedin: formData.shareOnLinkedin,
+        shareOnTwitter: formData.shareOnTwitter,
+        shareOnFacebook: formData.shareOnFacebook,
+        shareOnDevto: formData.shareOnDevto,
       };
 
       // Only include releaseSchedule if startDate is provided
@@ -115,12 +122,10 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           frequency: 'weekly',
           startDate: '',
         },
-        socialMedia: {
-          linkedin: false,
-          twitter: false,
-          facebook: false,
-          devto: false,
-        },
+        shareOnLinkedin: false,
+        shareOnTwitter: false,
+        shareOnFacebook: false,
+        shareOnDevto: false,
       });
 
       router.refresh(); // Refresh the page to show updated data
@@ -231,7 +236,10 @@ export function NewSeriesForm({ onSave }: NewSeriesFormProps) {
           Share on Social Media
         </label>
         <SocialMediaSelector
-          value={formData.socialMedia}
+          linkedin={formData.shareOnLinkedin}
+          twitter={formData.shareOnTwitter}
+          facebook={formData.shareOnFacebook}
+          devto={formData.shareOnDevto}
           onChange={handleSocialMediaChange}
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

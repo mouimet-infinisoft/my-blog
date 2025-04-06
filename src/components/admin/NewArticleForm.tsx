@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { ArticleStatus, SocialMediaTargets } from '@/lib/types';
+import { ArticleStatus } from '@/lib/types';
 import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 import { MDXEditor } from './MDXEditor';
@@ -15,7 +15,10 @@ interface NewArticleFormProps {
     publishDate?: string;
     category?: string;
     tags?: string[];
-    socialMedia?: SocialMediaTargets;
+    shareOnLinkedin?: boolean;
+    shareOnTwitter?: boolean;
+    shareOnFacebook?: boolean;
+    shareOnDevto?: boolean;
   }) => Promise<void>;
 }
 
@@ -29,12 +32,10 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
     publishDate: '',
     category: '',
     tags: '',
-    socialMedia: {
-      linkedin: false,
-      twitter: false,
-      facebook: false,
-      devto: false,
-    },
+    shareOnLinkedin: false,
+    shareOnTwitter: false,
+    shareOnFacebook: false,
+    shareOnDevto: false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,10 +56,13 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
     }));
   };
 
-  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+  const handleSocialMediaChange = (platform: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      socialMedia,
+      [platform === 'linkedin' ? 'shareOnLinkedin' :
+       platform === 'twitter' ? 'shareOnTwitter' :
+       platform === 'facebook' ? 'shareOnFacebook' :
+       'shareOnDevto']: checked,
     }));
   };
 
@@ -94,7 +98,10 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         publishDate: formData.publishDate || undefined,
         tags,
         category: formData.category || undefined,
-        socialMedia: formData.socialMedia,
+        shareOnLinkedin: formData.shareOnLinkedin,
+        shareOnTwitter: formData.shareOnTwitter,
+        shareOnFacebook: formData.shareOnFacebook,
+        shareOnDevto: formData.shareOnDevto,
       };
 
       await onSave(dataToSave);
@@ -109,12 +116,10 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         publishDate: '',
         category: '',
         tags: '',
-        socialMedia: {
-          linkedin: false,
-          twitter: false,
-          facebook: false,
-          devto: false,
-        },
+        shareOnLinkedin: false,
+        shareOnTwitter: false,
+        shareOnFacebook: false,
+        shareOnDevto: false,
       });
 
       router.refresh(); // Refresh the page to show updated data
@@ -257,7 +262,10 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           Share on Social Media
         </label>
         <SocialMediaSelector
-          value={formData.socialMedia}
+          linkedin={formData.shareOnLinkedin}
+          twitter={formData.shareOnTwitter}
+          facebook={formData.shareOnFacebook}
+          devto={formData.shareOnDevto}
           onChange={handleSocialMediaChange}
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

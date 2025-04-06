@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { Series, ArticleStatus, SocialMediaTargets } from '@/lib/types';
+import { Series, ArticleStatus } from '@/lib/types';
 import { SocialMediaSelector } from './SocialMediaSelector';
 import { useRouter } from 'next/navigation';
 
@@ -22,12 +22,10 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
       frequency: series.releaseSchedule?.frequency || 'weekly',
       startDate: series.releaseSchedule?.startDate || '',
     },
-    socialMedia: series.socialMedia || {
-      linkedin: false,
-      twitter: false,
-      facebook: false,
-      devto: false,
-    },
+    shareOnLinkedin: series.shareOnLinkedin || false,
+    shareOnTwitter: series.shareOnTwitter || false,
+    shareOnFacebook: series.shareOnFacebook || false,
+    shareOnDevto: series.shareOnDevto || false,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +51,13 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
     }
   };
 
-  const handleSocialMediaChange = (socialMedia: SocialMediaTargets) => {
+  const handleSocialMediaChange = (platform: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      socialMedia,
+      [platform === 'linkedin' ? 'shareOnLinkedin' :
+       platform === 'twitter' ? 'shareOnTwitter' :
+       platform === 'facebook' ? 'shareOnFacebook' :
+       'shareOnDevto']: checked,
     }));
   };
 
@@ -74,7 +75,10 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
         status: formData.status as ArticleStatus,
         publishDate: formData.publishDate || undefined,
         category: formData.category || undefined,
-        socialMedia: formData.socialMedia,
+        shareOnLinkedin: formData.shareOnLinkedin,
+        shareOnTwitter: formData.shareOnTwitter,
+        shareOnFacebook: formData.shareOnFacebook,
+        shareOnDevto: formData.shareOnDevto,
       };
 
       // Only include releaseSchedule if startDate is provided
@@ -193,7 +197,10 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
           Share on Social Media
         </label>
         <SocialMediaSelector
-          value={formData.socialMedia}
+          linkedin={formData.shareOnLinkedin}
+          twitter={formData.shareOnTwitter}
+          facebook={formData.shareOnFacebook}
+          devto={formData.shareOnDevto}
           onChange={handleSocialMediaChange}
         />
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

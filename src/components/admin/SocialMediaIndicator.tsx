@@ -1,17 +1,23 @@
 'use client';
 
-import { SocialMediaTargets } from '@/lib/types';
 import { Tooltip } from '@/components/ui/Tooltip';
 
 interface SocialMediaIndicatorProps {
-  socialMedia?: SocialMediaTargets;
+  shareOnLinkedin?: boolean;
+  shareOnTwitter?: boolean;
+  shareOnFacebook?: boolean;
+  shareOnDevto?: boolean;
   size?: 'sm' | 'md';
 }
 
-export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIndicatorProps) {
-  if (!socialMedia) return null;
-
-  const hasAnyTarget = socialMedia.linkedin || socialMedia.twitter || socialMedia.facebook || socialMedia.devto;
+export function SocialMediaIndicator({
+  shareOnLinkedin,
+  shareOnTwitter,
+  shareOnFacebook,
+  shareOnDevto,
+  size = 'md'
+}: SocialMediaIndicatorProps) {
+  const hasAnyTarget = shareOnLinkedin || shareOnTwitter || shareOnFacebook || shareOnDevto;
   if (!hasAnyTarget) return null;
 
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
@@ -19,7 +25,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
 
   return (
     <div className={`flex items-center ${wrapperClass}`}>
-      {socialMedia.linkedin && (
+      {shareOnLinkedin && (
         <Tooltip content="LinkedIn">
           <span className="text-[#0077B5]">
             <svg className={iconSize} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -29,7 +35,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
         </Tooltip>
       )}
 
-      {socialMedia.twitter && (
+      {shareOnTwitter && (
         <Tooltip content="Twitter">
           <span className="text-[#1DA1F2]">
             <svg className={iconSize} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -39,7 +45,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
         </Tooltip>
       )}
 
-      {socialMedia.facebook && (
+      {shareOnFacebook && (
         <Tooltip content="Facebook">
           <span className="text-[#1877F2]">
             <svg className={iconSize} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -49,7 +55,7 @@ export function SocialMediaIndicator({ socialMedia, size = 'md' }: SocialMediaIn
         </Tooltip>
       )}
 
-      {socialMedia.devto && (
+      {shareOnDevto && (
         <Tooltip content="DEV.to">
           <span className="text-zinc-800 dark:text-zinc-200">
             <svg className={iconSize} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
