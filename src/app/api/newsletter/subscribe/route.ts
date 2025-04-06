@@ -13,12 +13,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    // Create a default audience ID for testing
-    const defaultAudienceId = 'default';
+    // Get the audience ID from environment variables
+    const audienceId = process.env.RESEND_AUDIENCE_ID;
+
+    if (!audienceId) {
+      console.error('RESEND_AUDIENCE_ID is not defined in environment variables');
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
 
     // Add subscriber to Resend contacts
     const { data, error } = await resend.contacts.create({
-      audienceId: defaultAudienceId,
+      audienceId,
       email,
       firstName: name || undefined,
       unsubscribed: false,

@@ -40,11 +40,16 @@ export async function GET(request: Request) {
     }
 
     try {
-      // Create a default audience ID for testing
-      const defaultAudienceId = 'default';
+      // Get the audience ID from environment variables
+      const audienceId = process.env.RESEND_AUDIENCE_ID;
+
+      if (!audienceId) {
+        console.error('RESEND_AUDIENCE_ID is not defined in environment variables');
+        return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+      }
 
       // Get all contacts from Resend
-      const contactsResponse = await resend.contacts.list({ audienceId: defaultAudienceId });
+      const contactsResponse = await resend.contacts.list({ audienceId });
 
       if (!contactsResponse.data || !contactsResponse.data.data || contactsResponse.data.data.length === 0) {
         return NextResponse.json({

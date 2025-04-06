@@ -10,5 +10,6 @@ declare namespace NodeJS {
     FROM_EMAIL: string;
     SITE_URL: string;
     CRON_SECRET: string;
+    RESEND_AUDIENCE_ID: string;
   }
 }
