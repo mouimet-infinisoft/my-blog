@@ -24,16 +24,16 @@ export async function updateArticleMetadata(
 
   // Determine the file path
   const contentDir = path.join(process.cwd(), 'src/app/content');
-  let filePath: string;
+  let jsonPath: string;
 
   if (seriesSlug) {
     // Find the file in the series directory
     const seriesDir = path.join(contentDir, 'series', seriesSlug);
     const files = fs.readdirSync(seriesDir)
-      .filter(file => file.endsWith('.mdx') && !file.startsWith('_'));
+      .filter(file => file.endsWith('.json') && !file.startsWith('_'));
 
     const articleFile = files.find(file => {
-      const slug = file.replace(/^\d+-/, '').replace(/\.mdx$/, '');
+      const slug = file.replace(/^\d+-/, '').replace(/\.json$/, '');
       return slug === articleSlug;
     });
 
@@ -41,77 +41,55 @@ export async function updateArticleMetadata(
       throw new Error(`Article not found: ${articleSlug} in series ${seriesSlug}`);
     }
 
-    filePath = path.join(seriesDir, articleFile);
+    jsonPath = path.join(seriesDir, articleFile);
   } else {
-    // Find the file in the standalone directory
-    filePath = path.join(contentDir, 'standalone', `${articleSlug}.mdx`);
+    // Find the file in the articles directory
+    jsonPath = path.join(contentDir, 'articles', `${articleSlug}.json`);
 
-    if (!fs.existsSync(filePath)) {
+    if (!fs.existsSync(jsonPath)) {
       throw new Error(`Standalone article not found: ${articleSlug}`);
     }
   }
 
-  // Read the file content
-  let content = fs.readFileSync(filePath, 'utf8');
-
-  // Find the article metadata object
-  const articleMatch = content.match(/export const article = {([^}]*)}/s);
-
-  if (!articleMatch) {
-    throw new Error(`Could not find article metadata in ${filePath}`);
-  }
+  // Read the JSON file
+  const articleData = JSON.parse(fs.readFileSync(jsonPath, 'utf8')) as Article;
 
   // Update the metadata
-  let updatedContent = content;
+  const updatedArticleData = {
+    ...articleData,
+    ...metadata,
+  };
 
-  // Update each field in the metadata
-  Object.entries(metadata).forEach(([key, value]) => {
-    // Create a regex to find the field in the metadata
-    const fieldRegex = new RegExp(`(\\s+${key}:\\s*)([^,\\n}]*)(,?\\n)`, 'g');
+  // Write the updated data back to the file
+  fs.writeFileSync(jsonPath, JSON.stringify(updatedArticleData, null, 2), 'utf8');
 
-    if (fieldRegex.test(content)) {
-      // Field exists, update it
-      updatedContent = updatedContent.replace(
-        fieldRegex,
-        (match, prefix, oldValue, suffix) => {
-          // Format the value based on its type
-          let formattedValue;
-          if (typeof value === 'string') {
-            formattedValue = `"${value}"`;
-          } else if (Array.isArray(value)) {
-            formattedValue = JSON.stringify(value);
-          } else {
-            formattedValue = String(value);
-          }
+  // If this is a series article, also update the series JSON file
+  if (seriesSlug) {
+    const seriesJsonPath = path.join(contentDir, 'series', seriesSlug, '_series.json');
+    if (fs.existsSync(seriesJsonPath)) {
+      const seriesData = JSON.parse(fs.readFileSync(seriesJsonPath, 'utf8')) as Series;
 
-          return `${prefix}${formattedValue}${suffix}`;
-        }
-      );
-    } else {
-      // Field doesn't exist, add it
-      const lastBraceIndex = articleMatch[0].lastIndexOf('}');
-      const insertPosition = (articleMatch.index || 0) + lastBraceIndex;
+      // Find the article in the series
+      const articleIndex = seriesData.articles.findIndex(a => a.slug === articleSlug);
+      if (articleIndex !== -1) {
+        // Update the article in the series
+        seriesData.articles[articleIndex] = {
+          ...seriesData.articles[articleIndex],
+          title: metadata.title || seriesData.articles[articleIndex].title,
+          description: metadata.description || seriesData.articles[articleIndex].description,
+          status: metadata.status || seriesData.articles[articleIndex].status,
+          publishDate: metadata.publishDate || seriesData.articles[articleIndex].publishDate,
+          order: metadata.order || seriesData.articles[articleIndex].order,
+        };
 
-      // Format the value based on its type
-      let formattedValue;
-      if (typeof value === 'string') {
-        formattedValue = `"${value}"`;
-      } else if (Array.isArray(value)) {
-        formattedValue = JSON.stringify(value);
-      } else {
-        formattedValue = String(value);
+        // Sort articles by order
+        seriesData.articles.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        // Write the updated series JSON file
+        fs.writeFileSync(seriesJsonPath, JSON.stringify(seriesData, null, 2), 'utf8');
       }
-
-      // Add the field before the closing brace
-      updatedContent =
-        updatedContent.substring(0, insertPosition) +
-        `\n  ${key}: ${formattedValue},` +
-        updatedContent.substring(insertPosition);
     }
-  });
-
-  // Write the updated content back to the file
-  fs.writeFileSync(filePath, updatedContent, 'utf8');
+  }
 }
 
 /**
@@ -176,13 +154,14 @@ export async function createStandaloneArticle(
   // Generate slug from title
   const slug = slugify(title, { lower: true, strict: true });
 
-  // Determine the file path
+  // Determine the file paths
   const contentDir = path.join(process.cwd(), 'src/app/content');
-  const standaloneDir = path.join(contentDir, 'standalone');
-  const filePath = path.join(standaloneDir, `${slug}.mdx`);
+  const articlesDir = path.join(contentDir, 'articles');
+  const mdxPath = path.join(articlesDir, `${slug}.mdx`);
+  const jsonPath = path.join(articlesDir, `${slug}.json`);
 
-  // Check if file already exists
-  if (fs.existsSync(filePath)) {
+  // Check if files already exist
+  if (fs.existsSync(mdxPath) || fs.existsSync(jsonPath)) {
     throw new Error(`Article with slug '${slug}' already exists`);
   }
 
@@ -194,19 +173,24 @@ export async function createStandaloneArticle(
     publishDate: metadata.publishDate,
     category: metadata.category,
     tags: metadata.tags || [],
+    slug, // Add the slug to the metadata
+    isStandalone: true,
+    author: metadata.author || 'Admin', // Default author
+    date: metadata.date || new Date().toISOString().split('T')[0], // Today's date
     ...metadata
   };
 
-  // Create the article content
-  const articleContent = generateArticleMdx(articleMetadata, content);
-
   // Ensure the directory exists
-  if (!fs.existsSync(standaloneDir)) {
-    fs.mkdirSync(standaloneDir, { recursive: true });
+  if (!fs.existsSync(articlesDir)) {
+    fs.mkdirSync(articlesDir, { recursive: true });
   }
 
-  // Write the file
-  fs.writeFileSync(filePath, articleContent, 'utf8');
+  // Save the metadata to a JSON file
+  await saveArticleMetadata(jsonPath, articleMetadata);
+
+  // Create the article MDX file
+  const mdxContent = generateArticleMdx(slug, content);
+  await fs.writeFile(mdxPath, mdxContent, 'utf-8');
 
   return slug;
 }
@@ -307,6 +291,12 @@ export async function createSeriesArticle(
     throw new Error(`Article with slug '${slug}' already exists in series '${seriesSlug}'`);
   }
 
+  // Generate the filename with order prefix
+  const paddedOrder = String(order).padStart(2, '0');
+  const baseFileName = `${paddedOrder}-${slug}`;
+  const mdxPath = path.join(seriesDir, `${baseFileName}.mdx`);
+  const jsonPath = path.join(seriesDir, `${baseFileName}.json`);
+
   // Create the article metadata
   const articleMetadata: Partial<Article> = {
     title,
@@ -317,19 +307,18 @@ export async function createSeriesArticle(
     tags: metadata.tags || [],
     order,
     seriesSlug,
+    slug,
+    author: metadata.author || 'Admin', // Default author
+    date: metadata.date || new Date().toISOString().split('T')[0], // Today's date
     ...metadata
   };
 
-  // Create the article content
-  const articleContent = generateArticleMdx(articleMetadata, content);
+  // Save the metadata to a JSON file
+  await saveArticleMetadata(jsonPath, articleMetadata);
 
-  // Generate the filename with order prefix
-  const paddedOrder = String(order).padStart(2, '0');
-  const fileName = `${paddedOrder}-${slug}.mdx`;
-  const filePath = path.join(seriesDir, fileName);
-
-  // Write the file
-  fs.writeFileSync(filePath, articleContent, 'utf8');
+  // Create the article MDX file
+  const mdxContent = generateArticleMdx(baseFileName, content);
+  await fs.writeFile(mdxPath, mdxContent, 'utf-8');
 
   // Update the series JSON file with the new article
   seriesData.articles.push({
@@ -339,8 +328,8 @@ export async function createSeriesArticle(
     status: articleMetadata.status || 'draft',
     publishDate: articleMetadata.publishDate,
     order,
-    author: 'Admin', // Default author
-    date: new Date().toISOString().split('T')[0], // Today's date
+    author: articleMetadata.author || 'Admin',
+    date: articleMetadata.date || new Date().toISOString().split('T')[0],
   } as ArticleWithSlug);
 
   // Sort articles by order
@@ -353,53 +342,30 @@ export async function createSeriesArticle(
 }
 
 /**
+ * Saves article metadata to a JSON file
+ * @param filePath The path to save the JSON file
+ * @param metadata The article metadata
+ */
+async function saveArticleMetadata(filePath: string, metadata: Partial<Article>): Promise<void> {
+  await fs.writeFile(filePath, JSON.stringify(metadata, null, 2), 'utf-8');
+}
+
+/**
  * Generates MDX content for an article
  *
- * @param metadata The article metadata
+ * @param fileName The base file name (without extension)
  * @param content The article content
  * @returns The generated MDX content
  */
-function generateArticleMdx(metadata: Partial<Article>, content: string): string {
-  // Create a clean object with only the properties we want
-  const articleObj: any = {
-    title: metadata.title,
-    description: metadata.description || '',
-    status: metadata.status || 'draft',
-    publishDate: metadata.publishDate || undefined,
-    category: metadata.category || undefined,
-    tags: metadata.tags || [],
-  };
+function generateArticleMdx(fileName: string, content: string): string {
+  // Create a simple MDX file that imports the metadata from a JSON file
+  return `import { ArticleLayout } from '@/components/ArticleLayout'
+// Import the article metadata from the JSON file
+import article from './${fileName}.json'
 
-  // Add optional properties
-  if (metadata.order !== undefined) {
-    articleObj.order = metadata.order;
-  }
-
-  if (metadata.seriesSlug) {
-    articleObj.seriesSlug = metadata.seriesSlug;
-  }
-
-  // Add social media if present
-  if (metadata.socialMedia) {
-    articleObj.socialMedia = metadata.socialMedia;
-  }
-
-  // Convert the object to a string with proper formatting
-  const articleStr = JSON.stringify(articleObj, null, 2)
-    // Remove quotes from property names
-    .replace(/"([^"]+)":/g, '$1:')
-    // Add quotes to string values that need them
-    .replace(/: "([^"]+)"/g, ': "$1"')
-    // Fix arrays to use square brackets
-    .replace(/\[\n\s+/g, '[')
-    .replace(/\n\s+\]/g, ']');
-
-  // Construct the final MDX content
-  return `---
-title: "${metadata.title}"
----
-
-export const article = ${articleStr};
+export default function MDXPage(props) {
+  return <ArticleLayout article={article} {...props} />
+}
 
 ${content}
 `;

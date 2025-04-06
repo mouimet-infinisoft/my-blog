@@ -1,0 +1,32 @@
+import { ArticleLayout } from '@/components/ArticleLayout'
+import article from './01-test-article.json'
+
+export default function MDXPage(props) {
+  return <ArticleLayout article={article} {...props} />
+}
+
+## Test Series Article with Separate JSON Metadata
+
+This is a test series article to verify our new approach of separating metadata from MDX content.
+
+### Benefits of this approach for series
+
+1. **Consistent metadata**: Series articles can inherit metadata from the series
+2. **Easier to manage**: Series articles can be ordered and organized more easily
+3. **Better navigation**: Series navigation can be generated from the series metadata
+4. **Simpler implementation**: No need for complex string manipulation or regex
+
+### Example code for series
+
+```javascript
+// Reading series metadata from JSON file
+const seriesData = JSON.parse(fs.readFileSync('_series.json', 'utf8'));
+
+// Reading article metadata from JSON file
+const articleData = JSON.parse(fs.readFileSync('01-article.json', 'utf8'));
+
+// Using metadata in MDX file
+import article from './01-article.json';
+```
+
+This approach makes it much easier to manage series content and metadata separately.

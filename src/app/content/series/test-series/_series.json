@@ -1,0 +1,24 @@
+{
+  "name": "Test Series",
+  "description": "This is a test series to verify our new approach of separating metadata from MDX content.",
+  "slug": "test-series",
+  "status": "draft",
+  "publishDate": "2025-06-10",
+  "category": "Test",
+  "articles": [
+    {
+      "title": "Test Series Article with Separate JSON Metadata",
+      "description": "This is a test series article to verify our new approach of separating metadata from MDX content.",
+      "slug": "test-article",
+      "status": "draft",
+      "publishDate": "2025-06-05",
+      "order": 1,
+      "author": "Martin Ouimet",
+      "date": "2025-06-01"
+    }
+  ],
+  "shareOnLinkedin": true,
+  "shareOnTwitter": true,
+  "shareOnFacebook": false,
+  "shareOnDevto": true
+}

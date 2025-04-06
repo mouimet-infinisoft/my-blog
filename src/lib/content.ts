@@ -32,15 +32,15 @@ export async function getAllSeries(context?: GetStaticPropsContext) {
 export async function getArticlesBySeries(seriesSlug: string, context?: GetStaticPropsContext) {
   const seriesPath = path.join(process.cwd(), 'src/app/content/series', seriesSlug);
   const files = fs.readdirSync(seriesPath)
-    .filter(file => file.endsWith('.mdx') && !file.startsWith('_'));
+    .filter(file => file.endsWith('.json') && !file.startsWith('_'));
 
   const articles = await Promise.all(files.map(async (file) => {
-    // We don't need filePath here since we're using dynamic import
-    const { article } = await import(`../app/content/series/${seriesSlug}/${file}`);
+    const filePath = path.join(seriesPath, file);
+    const articleData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     return {
-      ...article,
-      slug: file.replace(/^\d+-/, '').replace(/\.mdx$/, ''),
+      ...articleData,
+      slug: file.replace(/^\d+-/, '').replace(/\.json$/, ''),
       seriesSlug
     };
   }));
@@ -55,14 +55,22 @@ export async function getArticlesBySeries(seriesSlug: string, context?: GetStati
 }
 
 export async function getStandaloneArticles(context?: GetStaticPropsContext) {
-  const standalonePath = path.join(process.cwd(), 'src/app/content/standalone');
-  const files = fs.readdirSync(standalonePath).filter(file => file.endsWith('.mdx'));
+  const articlesPath = path.join(process.cwd(), 'src/app/content/articles');
+
+  if (!fs.existsSync(articlesPath)) {
+    return [];
+  }
+
+  const files = fs.readdirSync(articlesPath).filter(file => file.endsWith('.json'));
 
   const articles = await Promise.all(files.map(async (file) => {
-    const { article } = await import(`../app/content/standalone/${file}`);
+    const filePath = path.join(articlesPath, file);
+    const articleData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    const slug = file.replace(/\.json$/, '');
 
     return {
-      ...article,
+      ...articleData,
+      slug,
       isStandalone: true
     };
   }));

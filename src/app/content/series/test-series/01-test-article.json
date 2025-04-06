@@ -1,0 +1,14 @@
+{
+  "title": "Test Series Article with Separate JSON Metadata",
+  "description": "This is a test series article to verify our new approach of separating metadata from MDX content.",
+  "author": "Martin Ouimet",
+  "date": "2025-06-01",
+  "order": 1,
+  "seriesSlug": "test-series",
+  "slug": "test-article",
+  "tags": ["test", "metadata", "json", "series"],
+  "category": "Test",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-06-05"
+}
