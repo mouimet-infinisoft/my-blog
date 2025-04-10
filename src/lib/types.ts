@@ -17,6 +17,7 @@ export interface Article {
   description: string
   author: string
   date: string
+  slug?: string
   tags?: string[]
   category?: string
   order?: number

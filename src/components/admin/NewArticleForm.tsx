@@ -99,6 +99,12 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         publishDate: '',
         category: '',
         tags: '',
+        socialMedia: {
+          linkedin: false,
+          twitter: false,
+          facebook: false,
+          devto: false,
+        },
       });
 
       router.refresh(); // Refresh the page to show updated data
