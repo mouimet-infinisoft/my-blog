@@ -27,11 +27,17 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
     publishDate: '',
     category: '',
     tags: '',
+    socialMedia: {
+      linkedin: false,
+      twitter: false,
+      facebook: false,
+      devto: false,
+    },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -39,37 +45,37 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
       [name]: value,
     }));
   };
-  
+
   const handleContentChange = (content: string) => {
     setFormData(prev => ({
       ...prev,
       content,
     }));
   };
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.title.trim()) {
       setError('Title is required');
       return;
     }
-    
+
     if (!formData.content.trim()) {
       setError('Content is required');
       return;
     }
-    
+
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       // Process tags
       const tags = formData.tags
         ? formData.tags.split(',').map(tag => tag.trim()).filter(Boolean)
         : undefined;
-      
+
       // Prepare data for saving
       const dataToSave = {
         title: formData.title,
@@ -80,10 +86,10 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         tags,
         category: formData.category || undefined,
       };
-      
+
       await onSave(dataToSave);
       setSuccess(true);
-      
+
       // Reset form after successful save
       setFormData({
         title: '',
@@ -94,7 +100,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
         category: '',
         tags: '',
       });
-      
+
       router.refresh(); // Refresh the page to show updated data
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while saving');
@@ -102,7 +108,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
       setIsSubmitting(false);
     }
   };
-  
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
@@ -110,13 +116,13 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           <p className="text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-50 border-l-4 border-green-500 p-4 dark:bg-green-900/20">
           <p className="text-green-700 dark:text-green-400">Article created successfully!</p>
         </div>
       )}
-      
+
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Title
@@ -131,7 +137,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Description
@@ -145,19 +151,19 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
         />
       </div>
-      
+
       <div>
         <label htmlFor="content" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Content (Markdown)
         </label>
         <div className="mt-1 border border-zinc-300 dark:border-zinc-700 rounded-md overflow-hidden">
-          <MDXEditor 
-            value={formData.content} 
-            onChange={handleContentChange} 
+          <MDXEditor
+            value={formData.content}
+            onChange={handleContentChange}
           />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="status" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -177,7 +183,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
             <option value="featured">Featured</option>
           </select>
         </div>
-        
+
         <div>
           <label htmlFor="publishDate" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Publish Date
@@ -195,7 +201,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           </p>
         </div>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
@@ -210,7 +216,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
             className="mt-1 block w-full rounded-md border-zinc-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 dark:bg-zinc-800 dark:border-zinc-700"
           />
         </div>
-        
+
         <div>
           <label htmlFor="tags" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Tags
@@ -229,7 +235,7 @@ export function NewArticleForm({ onSave }: NewArticleFormProps) {
           </p>
         </div>
       </div>
-      
+
       <div className="flex justify-end">
         <button
           type="submit"

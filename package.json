@@ -33,6 +33,7 @@
     "fast-glob": "^3.2.11",
     "feed": "^4.2.2",
     "framer-motion": "^12.4.11",
+    "glob": "^11.0.1",
     "lucide-react": "^0.479.0",
     "next": "^14.0.4",
     "next-mdx-remote": "^5.0.0",

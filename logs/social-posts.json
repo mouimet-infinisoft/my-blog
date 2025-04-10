@@ -26,5 +26,145 @@
     "contentId": "test-social-media-article-1743945509",
     "contentType": "article",
     "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.951Z",
+    "platform": "linkedin",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.951Z",
+    "platform": "twitter",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.955Z",
+    "platform": "facebook",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.955Z",
+    "platform": "devto",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.956Z",
+    "platform": "linkedin",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.956Z",
+    "platform": "twitter",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.957Z",
+    "platform": "facebook",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T13:46:07.957Z",
+    "platform": "devto",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.771Z",
+    "platform": "linkedin",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.772Z",
+    "platform": "twitter",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.775Z",
+    "platform": "facebook",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.776Z",
+    "platform": "devto",
+    "contentId": "test-social-media-article-1743945509",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.776Z",
+    "platform": "linkedin",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.777Z",
+    "platform": "twitter",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.777Z",
+    "platform": "facebook",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.778Z",
+    "platform": "devto",
+    "contentId": "test-social-media-article-1743947162",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.778Z",
+    "platform": "linkedin",
+    "contentId": "test-social-media-article-1743952669",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.779Z",
+    "platform": "twitter",
+    "contentId": "test-social-media-article-1743952669",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.779Z",
+    "platform": "facebook",
+    "contentId": "test-social-media-article-1743952669",
+    "contentType": "article",
+    "success": true
+  },
+  {
+    "timestamp": "2025-04-06T15:17:52.780Z",
+    "platform": "devto",
+    "contentId": "test-social-media-article-1743952669",
+    "contentType": "article",
+    "success": true
   }
 ]

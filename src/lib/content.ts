@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { type ArticleWithSlug, type Series } from './types';
+import { type Article, type ArticleWithSlug, type Series } from './types';
 import { isContentVisible } from './visibility';
 import { isPreviewMode } from './preview';
 import { GetStaticPropsContext } from 'next';
@@ -32,15 +32,24 @@ export async function getAllSeries(context?: GetStaticPropsContext) {
 export async function getArticlesBySeries(seriesSlug: string, context?: GetStaticPropsContext) {
   const seriesPath = path.join(process.cwd(), 'src/app/content/series', seriesSlug);
   const files = fs.readdirSync(seriesPath)
-    .filter(file => file.endsWith('.mdx') && !file.startsWith('_'));
+    .filter(file => file.endsWith('.json') && !file.startsWith('_'));
 
   const articles = await Promise.all(files.map(async (file) => {
-    // We don't need filePath here since we're using dynamic import
-    const { article } = await import(`../app/content/series/${seriesSlug}/${file}`);
+    const jsonPath = path.join(seriesPath, file);
+    const articleData = JSON.parse(fs.readFileSync(jsonPath, 'utf8')) as Article;
+
+    // Get the MDX content file path
+    const mdxFile = file.replace('.json', '.mdx');
+    const mdxPath = path.join(seriesPath, mdxFile);
+
+    // Check if MDX file exists
+    if (!fs.existsSync(mdxPath)) {
+      console.warn(`MDX file not found for ${file}`);
+    }
 
     return {
-      ...article,
-      slug: file.replace(/^\d+-/, '').replace(/\.mdx$/, ''),
+      ...articleData,
+      slug: file.replace(/^\d+-/, '').replace(/\.json$/, ''),
       seriesSlug
     };
   }));
@@ -51,18 +60,29 @@ export async function getArticlesBySeries(seriesSlug: string, context?: GetStati
     (context && isPreviewMode(context))
   );
 
-  return visibleArticles.sort((a, b) => a.order - b.order);
+  return visibleArticles.sort((a, b) => (a.order || 0) - (b.order || 0));
 }
 
 export async function getStandaloneArticles(context?: GetStaticPropsContext) {
   const standalonePath = path.join(process.cwd(), 'src/app/content/standalone');
-  const files = fs.readdirSync(standalonePath).filter(file => file.endsWith('.mdx'));
+  const files = fs.readdirSync(standalonePath).filter(file => file.endsWith('.json'));
 
   const articles = await Promise.all(files.map(async (file) => {
-    const { article } = await import(`../app/content/standalone/${file}`);
+    const jsonPath = path.join(standalonePath, file);
+    const articleData = JSON.parse(fs.readFileSync(jsonPath, 'utf8')) as Article;
+
+    // Get the MDX content file path
+    const mdxFile = file.replace('.json', '.mdx');
+    const mdxPath = path.join(standalonePath, mdxFile);
+
+    // Check if MDX file exists
+    if (!fs.existsSync(mdxPath)) {
+      console.warn(`MDX file not found for ${file}`);
+    }
 
     return {
-      ...article,
+      ...articleData,
+      slug: file.replace(/\.json$/, ''),
       isStandalone: true
     };
   }));
@@ -93,6 +113,17 @@ export async function getArticleBySlug(slug: string, seriesSlug?: string, contex
       throw new Error(`Article not found: ${slug} in series ${seriesSlug}`);
     }
 
+    // Load MDX content
+    const seriesPath = path.join(process.cwd(), 'src/app/content/series', seriesSlug);
+    const files = fs.readdirSync(seriesPath)
+      .filter(file => file.endsWith('.mdx') && file.includes(slug));
+
+    if (files.length > 0) {
+      const mdxPath = path.join(seriesPath, files[0]);
+      const mdxContent = fs.readFileSync(mdxPath, 'utf8');
+      article.content = mdxContent;
+    }
+
     const articleIndex = articles.findIndex(a => a.slug === slug);
 
     return {
@@ -107,6 +138,15 @@ export async function getArticleBySlug(slug: string, seriesSlug?: string, contex
   const article = standaloneArticles.find(a => a.slug === slug);
 
   if (article) {
+    // Load MDX content
+    const standalonePath = path.join(process.cwd(), 'src/app/content/standalone');
+    const mdxPath = path.join(standalonePath, `${slug}.mdx`);
+
+    if (fs.existsSync(mdxPath)) {
+      const mdxContent = fs.readFileSync(mdxPath, 'utf8');
+      article.content = mdxContent;
+    }
+
     return { article };
   }
 
@@ -116,6 +156,17 @@ export async function getArticleBySlug(slug: string, seriesSlug?: string, contex
   for (const s of series) {
     const article = s.articles.find((a: ArticleWithSlug) => a.slug === slug);
     if (article) {
+      // Load MDX content
+      const seriesPath = path.join(process.cwd(), 'src/app/content/series', s.slug);
+      const files = fs.readdirSync(seriesPath)
+        .filter(file => file.endsWith('.mdx') && file.includes(slug));
+
+      if (files.length > 0) {
+        const mdxPath = path.join(seriesPath, files[0]);
+        const mdxContent = fs.readFileSync(mdxPath, 'utf8');
+        article.content = mdxContent;
+      }
+
       const articleIndex = s.articles.findIndex(a => a.slug === slug);
 
       return {

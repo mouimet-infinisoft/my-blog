@@ -76,23 +76,23 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       params.seriesSlug
     )
 
-    // Get the file path for the MDX file
-    const filePath = path.join(
+    // Find the MDX file for this article
+    const seriesPath = path.join(
       process.cwd(),
       'src/app/content/series',
-      params.seriesSlug,
-      `${article.order.toString().padStart(2, '0')}-${params.articleSlug}.mdx`
+      params.seriesSlug
     )
 
-    // Read the MDX file content
-    const fileContent = fs.readFileSync(filePath, 'utf8')
+    // Find the MDX file with the article slug
+    const files = fs.readdirSync(seriesPath)
+      .filter(file => file.endsWith('.mdx') && file.includes(params.articleSlug))
 
-    // Extract the content part (after the default export)
-    const contentMatch = fileContent.match(/export default \(props\) => <ArticleLayout[^>]*>([\s\S]*)/)
     let content = ''
-
-    if (contentMatch) {
-      content = contentMatch[1].replace(/<\/ArticleLayout>\s*$/, '')
+    if (files.length > 0) {
+      const filePath = path.join(seriesPath, files[0])
+      content = fs.readFileSync(filePath, 'utf8')
+    } else {
+      console.warn(`MDX file not found for article: ${params.articleSlug} in series: ${params.seriesSlug}`)
     }
 
     return (

@@ -1,0 +1,20 @@
+{
+  "title": "Understanding State Management with @brainstack/store",
+  "description": "Learn how @brainstack/store combines state management with event handling to create a powerful and flexible solution for managing application state.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-25",
+  "order": 1,
+  "seriesSlug": "brainstack-store-series",
+  "slug": "understanding-brainstack-store",
+  "tags": [
+    "state-management",
+    "events",
+    "brainstack",
+    "store",
+    "typescript"
+  ],
+  "category": "State Management",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

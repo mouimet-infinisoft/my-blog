@@ -1,0 +1,21 @@
+{
+  "title": "Real-World Applications: Building a Chat System with @brainstack/hub",
+  "description": "Learn how to build a scalable real-time chat system using @brainstack/hub and WebSocket integration.",
+  "author": "Martin Ouimet",
+  "date": "2024-01-18",
+  "order": 5,
+  "seriesSlug": "brainstack-hub-series",
+  "slug": "building-chat-system-brainstack-hub",
+  "tags": [
+    "chat",
+    "websocket",
+    "real-time",
+    "brainstack",
+    "hub",
+    "typescript"
+  ],
+  "category": "Real-World Examples",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

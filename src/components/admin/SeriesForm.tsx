@@ -21,13 +21,21 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
       frequency: series.releaseSchedule?.frequency || 'weekly',
       startDate: series.releaseSchedule?.startDate || '',
     },
+    socialMedia: {
+      linkedin: series.socialMedia?.linkedin || false,
+      twitter: series.socialMedia?.twitter || false,
+      facebook: series.socialMedia?.facebook || false,
+      devto: series.socialMedia?.devto || false,
+    },
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target as HTMLInputElement;
+    const isCheckbox = type === 'checkbox';
+    const inputValue = isCheckbox ? (e.target as HTMLInputElement).checked : value;
 
     if (name.startsWith('releaseSchedule.')) {
       const field = name.split('.')[1];
@@ -35,13 +43,22 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
         ...prev,
         releaseSchedule: {
           ...prev.releaseSchedule,
-          [field]: value,
+          [field]: inputValue,
+        },
+      }));
+    } else if (name.startsWith('socialMedia.')) {
+      const platform = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        socialMedia: {
+          ...prev.socialMedia,
+          [platform]: inputValue,
         },
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value,
+        [name]: inputValue,
       }));
     }
   };
@@ -60,6 +77,12 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
         status: formData.status as ArticleStatus,
         publishDate: formData.publishDate || undefined,
         category: formData.category || undefined,
+        socialMedia: {
+          linkedin: formData.socialMedia.linkedin,
+          twitter: formData.socialMedia.twitter,
+          facebook: formData.socialMedia.facebook,
+          devto: formData.socialMedia.devto,
+        },
       };
 
       // Only include releaseSchedule if startDate is provided
@@ -209,6 +232,71 @@ export function SeriesForm({ series, onSave }: SeriesFormProps) {
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
               When to start releasing articles in this series
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-zinc-200 dark:border-zinc-700 pt-6">
+        <h3 className="text-lg font-medium mb-4">Social Media</h3>
+        <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
+          Select platforms where this series should be shared when published
+        </p>
+
+        <div className="space-y-4">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="socialMedia.linkedin"
+              name="socialMedia.linkedin"
+              checked={formData.socialMedia.linkedin}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-500 dark:border-zinc-700 dark:bg-zinc-800"
+            />
+            <label htmlFor="socialMedia.linkedin" className="ml-2 block text-sm text-zinc-700 dark:text-zinc-300">
+              LinkedIn
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="socialMedia.twitter"
+              name="socialMedia.twitter"
+              checked={formData.socialMedia.twitter}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-500 dark:border-zinc-700 dark:bg-zinc-800"
+            />
+            <label htmlFor="socialMedia.twitter" className="ml-2 block text-sm text-zinc-700 dark:text-zinc-300">
+              Twitter
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="socialMedia.facebook"
+              name="socialMedia.facebook"
+              checked={formData.socialMedia.facebook}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-500 dark:border-zinc-700 dark:bg-zinc-800"
+            />
+            <label htmlFor="socialMedia.facebook" className="ml-2 block text-sm text-zinc-700 dark:text-zinc-300">
+              Facebook
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="socialMedia.devto"
+              name="socialMedia.devto"
+              checked={formData.socialMedia.devto}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-zinc-300 text-teal-600 focus:ring-teal-500 dark:border-zinc-700 dark:bg-zinc-800"
+            />
+            <label htmlFor="socialMedia.devto" className="ml-2 block text-sm text-zinc-700 dark:text-zinc-300">
+              DEV.to
+            </label>
           </div>
         </div>
       </div>

@@ -10,5 +10,11 @@
   "releaseSchedule": {
     "frequency": "weekly",
     "startDate": "2025-04-05"
+  },
+  "socialMedia": {
+    "linkedin": true,
+    "twitter": true,
+    "facebook": true,
+    "devto": true
   }
 }

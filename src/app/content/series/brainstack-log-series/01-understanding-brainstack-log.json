@@ -1,0 +1,20 @@
+{
+  "title": "Understanding Logging with @brainstack/log",
+  "description": "Deep dive into logging concepts and how @brainstack/log provides flexible, extensible logging capabilities for modern applications.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-20",
+  "order": 1,
+  "seriesSlug": "brainstack-log-series",
+  "slug": "understanding-brainstack-log",
+  "tags": [
+    "logging",
+    "brainstack",
+    "log",
+    "typescript",
+    "monitoring"
+  ],
+  "category": "Logging",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

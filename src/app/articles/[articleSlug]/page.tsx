@@ -73,17 +73,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       `${params.articleSlug}.mdx`,
     )
 
-    // Read the MDX file content
-    const fileContent = fs.readFileSync(filePath, 'utf8')
-
-    // Extract the content part (after the default export)
-    const contentMatch = fileContent.match(
-      /export default \(props\) => <ArticleLayout[^>]*>([\s\S]*)/,
-    )
+    // Read the MDX file content directly
     let content = ''
-
-    if (contentMatch) {
-      content = contentMatch[1].replace(/<\/ArticleLayout>\s*$/, '')
+    if (fs.existsSync(filePath)) {
+      content = fs.readFileSync(filePath, 'utf8')
+    } else {
+      console.warn(`MDX file not found: ${filePath}`)
     }
 
     return (

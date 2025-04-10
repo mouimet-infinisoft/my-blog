@@ -1,0 +1,21 @@
+{
+  "title": "Getting Started with @brainstack/hub",
+  "description": "A comprehensive tutorial on getting started with event-driven development using @brainstack/hub, including installation, basic concepts, and your first event system.",
+  "author": "Martin Ouimet",
+  "date": "2024-01-16",
+  "order": 2,
+  "seriesSlug": "brainstack-hub-series",
+  "slug": "getting-started-brainstack-hub",
+  "tags": [
+    "tutorial",
+    "getting-started",
+    "brainstack",
+    "hub",
+    "typescript",
+    "events"
+  ],
+  "category": "Tutorials",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

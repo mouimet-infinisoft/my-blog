@@ -1,0 +1,19 @@
+{
+  "title": "Getting Started with @brainstack/inject: A Dependency Injection Tutorial",
+  "description": "Learn how to use @brainstack/inject, a powerful dependency injection library, to manage dependencies in your JavaScript and TypeScript projects.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-10",
+  "order": 1,
+  "seriesSlug": "brainstack-inject-series",
+  "slug": "brainstack-inject-tutorial",
+  "tags": [
+    "dependency-injection",
+    "brainstack",
+    "inject",
+    "typescript"
+  ],
+  "category": "Tutorials",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

@@ -1,0 +1,20 @@
+{
+  "title": "Testing and Optimizing @brainstack/store",
+  "description": "Learn effective testing strategies and performance optimization patterns for applications using @brainstack/store.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-27",
+  "order": 3,
+  "seriesSlug": "brainstack-store-series",
+  "slug": "testing-and-optimizing-store",
+  "tags": [
+    "testing",
+    "optimization",
+    "brainstack",
+    "store",
+    "typescript"
+  ],
+  "category": "State Management",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}

@@ -27,6 +27,7 @@ export interface Article {
   publishDate?: string
   socialMedia?: SocialMediaPlatforms
   content?: string
+  coverImage?: string
 }
 
 export interface ArticleWithSlug extends Article {

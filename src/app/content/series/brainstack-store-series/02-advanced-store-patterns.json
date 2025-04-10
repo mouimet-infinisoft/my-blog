@@ -1,0 +1,21 @@
+{
+  "title": "Advanced Patterns with @brainstack/store",
+  "description": "Explore advanced patterns and real-world examples for managing complex application state using @brainstack/store.",
+  "author": "Martin Ouimet",
+  "date": "2024-03-26",
+  "order": 2,
+  "seriesSlug": "brainstack-store-series",
+  "slug": "advanced-store-patterns",
+  "tags": [
+    "state-management",
+    "patterns",
+    "brainstack",
+    "store",
+    "typescript",
+    "advanced"
+  ],
+  "category": "State Management",
+  "githubRepo": "",
+  "status": "draft",
+  "publishDate": "2025-04-05"
+}
