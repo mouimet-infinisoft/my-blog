@@ -1,8 +1,0 @@
-{
-  "name": "@brainstack/nlsh Series",
-  "description": "Master natural language terminal interaction with @brainstack/nlsh through a series of in-depth articles covering core concepts, advanced usage, and real-world applications.",
-  "slug": "brainstack-nlsh-series",
-  "coverImage": "/images/nlsh_series.png",
-  "category": "CLI Tools",
-  "githubRepo": ""
-}

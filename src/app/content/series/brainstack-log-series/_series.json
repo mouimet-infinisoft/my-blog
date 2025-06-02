@@ -1,8 +1,0 @@
-{
-  "name": "@brainstack/log Series",
-  "description": "Master application logging with @brainstack/log through a series of in-depth articles covering core concepts, integrations, best practices, and real-world applications.",
-  "slug": "brainstack-log-series",
-  "coverImage": "/images/logger_series.png",
-  "category": "Logging",
-  "githubRepo": ""
-}

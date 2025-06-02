@@ -1,8 +1,0 @@
-{
-  "name": "@brainstack/state Series",
-  "description": "Master application state management with @brainstack/state through a series of in-depth articles covering core concepts, patterns, and real-world applications.",
-  "slug": "brainstack-state-series",
-  "coverImage": "/images/state_series.png",
-  "category": "State Management",
-  "githubRepo": ""
-}
