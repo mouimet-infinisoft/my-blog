@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { BackTopButton } from "@/components/back-to-top";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         </ThemeProvider>
       </body>
       <Analytics />
+      <SpeedInsights />
     </html>
   );
 }
