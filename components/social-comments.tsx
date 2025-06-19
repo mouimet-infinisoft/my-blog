@@ -17,7 +17,7 @@ export const SocialComments = ({ title, slug }: GitHubCommentsProps) => {
     // Create the script element for giscus
     const script = document.createElement('script');
     script.src = 'https://giscus.app/client.js';
-    script.setAttribute('data-repo', 'mouimet-infinisoft/AISDLC');
+    script.setAttribute('data-repo', 'Infinisoft-inc/AISDLC');
     script.setAttribute('data-repo-id', 'R_kgDOObV4_w');
     script.setAttribute('data-category', 'General');
     script.setAttribute('data-category-id', 'DIC_kwDOObV4_84CpNG9');
