@@ -38,10 +38,13 @@ export function Sidebar({ className, ...props }: CardProps) {
                 <p className="text-sm font-medium leading-none capitalize">{platform.name}</p>
               </Link>
             ))}
-            <div className="flex items-center rounded-md pl-2 hover:bg-background/40 hover:backdrop-blur-lg">
+            <Link
+              href={`mailto:${defaultAuthor.email}`}
+              className="flex items-center rounded-md pl-2 hover:bg-background/40 hover:backdrop-blur-lg"
+            >
               <Mail className="mr-2 h-8 w-8 p-2" />
               <p className="text-sm font-medium leading-none">{defaultAuthor.email}</p>
-            </div>
+            </Link>
           </div>
         </CardContent>
       </Card>
