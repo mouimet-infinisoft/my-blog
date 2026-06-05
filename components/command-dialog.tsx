@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { DialogProps } from "@radix-ui/react-alert-dialog";
-import { File, Github, Laptop, Mail, Moon, Sun, Twitter } from "lucide-react";
+import { File, Github, Laptop, Mail, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import siteMetadata, { defaultAuthor } from "@/lib/metadata";
@@ -101,22 +101,12 @@ export function CommandDialogComponent({ ...props }: DialogProps) {
             <CommandItem
               onSelect={() => {
                 runCommand(() =>
-                  navigate(defaultAuthor.socialProfiles.find((platform) => platform.name === "twitter")?.link as string)
-                );
-              }}
-            >
-              <Twitter className="mr-2 h-4 w-4" />
-              <span>Twitter</span>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => {
-                runCommand(() =>
                   navigate(defaultAuthor.socialProfiles.find((platform) => platform.name === "github")?.link as string)
                 );
               }}
             >
               <Github className="mr-2 h-4 w-4" />
-              <span>Github</span>
+              <span>GitHub</span>
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
