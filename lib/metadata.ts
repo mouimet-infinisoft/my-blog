@@ -11,7 +11,7 @@ export const defaultAuthor: AuthorType = {
   name: "Martin Ouimet",
   handle: "@InfinisoftI",
   socialProfiles,
-  email: "mart@infinisoft.world",
+  email: "mouimet@infinisoft.world",
   website: "https://blog.infinisoft.world",
   jobTitle: "Technology Leader & AI Solutions Architect",
   company: "Infinisoft World Inc.",

@@ -9,8 +9,4 @@ export const socialProfiles: SocialProfile[] = [
     name: "linkedin",
     link: "https://www.linkedin.com/in/mouimet-infinisoft/",
   },
-  {
-    name: "x",
-    link: "https://x.com/InfinisoftI",
-  },
 ];
