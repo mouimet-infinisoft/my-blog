@@ -19,7 +19,6 @@ export const projects = [
     shortDescription: `Social services management platform built with voice-driven AI-SDLC methodology.`,
     href: "/projects/so-simple-platform",
     externalUrl: "https://github.com/mouimet-infinisoft/rqrsda2025",
-    demoUrl: "https://sisimple.vercel.app/",
     mediaSrc: "/so-simple-card.png",
     mediaType: "image",
     technologies: ["Next.js 15", "React 19", "Supabase", "PostgreSQL", "Tailwind CSS", "N8N"],

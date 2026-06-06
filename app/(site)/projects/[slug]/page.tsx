@@ -84,17 +84,26 @@ export default async function ProjectPage({ params }: ProjectProps) {
                   <Link href={project.demoUrl} target="_blank" rel="noopener noreferrer">
                     {project.demoUrl.includes('npmjs.com') ? (
                       <ExternalLink className="mr-2 h-4 w-4" />
-                    ) : project.demoUrl.includes('github.com') ? (
-                      <Github className="mr-2 h-4 w-4" />
                     ) : (
                       <Globe className="mr-2 h-4 w-4" />
                     )}
-                    {project.demoUrl.includes('npmjs.com') ? 'View Packages' :
-                     project.demoUrl.includes('github.com') ? 'Documentation' : 'Live Demo'}
+                    {project.demoUrl.includes('npmjs.com') ? 'View Packages' : 'Live Demo'}
                   </Link>
                 </Button>
               )}
-              {project.externalUrl && (
+              {project.externalUrl && !project.demoUrl && (
+                <Button asChild>
+                  <Link href={project.externalUrl} target="_blank" rel="noopener noreferrer">
+                    {project.externalUrl.includes('github') ? (
+                      <Github className="mr-2 h-4 w-4" />
+                    ) : (
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                    )}
+                    {project.externalUrl.includes('github') ? 'GitHub Repo' : 'Visit Site'}
+                  </Link>
+                </Button>
+              )}
+              {project.externalUrl && project.demoUrl && (
                 <Button variant="outline" asChild>
                   <Link href={project.externalUrl} target="_blank" rel="noopener noreferrer">
                     {project.externalUrl.includes('github') ? (
